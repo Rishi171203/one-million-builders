@@ -2,10 +2,11 @@
   "course": "OneMillion Builder",
   "current_day": 3,
   "current_phase": "spec",
-  "next_agent": "spec",
+  "next_agent": "design",
   "product_dir": "my-onemillion-build",
-  "status": "day_2_complete",
+  "status": "day_3_spec_validated",
   "last_verified_day": 2,
+  "spec_validation": "passed — refined-prd.md is a complete, non-drifting, buildable MVP spec (validated 2026-06-09)",
   "product": {
     "builder_name": "Rishi",
     "product_name": "haus",
