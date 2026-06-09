@@ -24,8 +24,11 @@ import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import PublicRoundedIcon from "@mui/icons-material/PublicRounded";
+import { useRouter } from "next/navigation";
 import { computeResult, type Result } from "@/lib/haus";
 import { MARKETS, getMarket, DEFAULT_MARKET, fmtCompact, fmtFull, type Market } from "@/lib/markets";
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 const MotionDiv = motion.div;
 
@@ -64,6 +67,21 @@ export default function Home() {
 
   const resultRef = useRef<HTMLDivElement>(null);
   const advisorRef = useRef<HTMLDivElement>(null);
+
+  const router = useRouter();
+  const [supabase] = useState(() => createClient());
+  const [user, setUser] = useState<User | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) =>
+      setUser(session?.user ?? null)
+    );
+    return () => sub.subscription.unsubscribe();
+  }, [supabase]);
+  async function logout() {
+    await supabase.auth.signOut();
+    setUser(null);
+  }
 
   function changeMarket(code: string) {
     const m = getMarket(code);
@@ -140,9 +158,20 @@ export default function Home() {
               haus<Box component="span" sx={{ color: "primary.main" }}>.</Box>
             </Typography>
           </Stack>
-          <Button variant="contained" size="small" onClick={() => advisorRef.current?.scrollIntoView({ behavior: "smooth" })}>
-            Get my verdict
-          </Button>
+          <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
+            {user ? (
+              <>
+                <Typography variant="body2" color="text.secondary" sx={{ display: { xs: "none", sm: "block" }, maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {user.email}
+                </Typography>
+                <Button variant="outlined" size="small" onClick={logout}>Log out</Button>
+              </>
+            ) : (
+              <Button variant="contained" size="small" onClick={() => router.push("/login")}>
+                Log in
+              </Button>
+            )}
+          </Stack>
         </Toolbar>
       </AppBar>
 
