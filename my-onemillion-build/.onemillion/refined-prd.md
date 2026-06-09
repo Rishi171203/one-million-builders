@@ -4,6 +4,19 @@ Spec locked on: 2026-06-09
 
 Source PRD: .onemillion/prd.md
 
+## Scope Update (Day 5, 2026-06-10)
+Founder + CEO direction: build haus **fully as a deployable global product** before launch
+(no rush). The following items, previously "Out of Scope for MVP", are now **IN SCOPE** and
+planned in `architecture.md` + `sprints/`:
+- **Global, multi-currency** (launch markets: India, USA, Germany, UK, UAE) — replaces the
+  Bangalore-only v1. Bangalore/India remains one of the supported markets.
+- **User accounts** (register/login via Supabase Auth — email/password + Google).
+- **Saved data in a database** (Supabase/Postgres) + a user **dashboard** to view history.
+- **Global deployment** via Vercel.
+Still deferred: AI advisor + document upload (course Days 11–12), live price/rate data,
+lender integrations, savings-goal reminders. The Day 3 spec below remains the core advisory
+logic; this update widens reach and adds accounts/persistence around it.
+
 ## Day 3 Locked Spec
 
 ### MVP Summary
