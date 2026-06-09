@@ -10,6 +10,7 @@ import {
   Typography,
   Paper,
   TextField,
+  MenuItem,
   InputAdornment,
   Button,
   Chip,
@@ -22,7 +23,9 @@ import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
-import { computeResult, inrCompact, inrFull, type Result } from "@/lib/haus";
+import PublicRoundedIcon from "@mui/icons-material/PublicRounded";
+import { computeResult, type Result } from "@/lib/haus";
+import { MARKETS, getMarket, DEFAULT_MARKET, fmtCompact, fmtFull, type Market } from "@/lib/markets";
 
 const MotionDiv = motion.div;
 
@@ -47,11 +50,12 @@ function AnimatedNumber({ value, format }: { value: number; format: (n: number) 
 const toNum = (s: string) => Number(String(s).replace(/[^0-9.]/g, "")) || 0;
 
 export default function Home() {
-  const [income, setIncome] = useState("90000");
-  const [savings, setSavings] = useState("700000");
-  const [rent, setRent] = useState("28000");
-  const [age, setAge] = useState("27");
-  const [goal, setGoal] = useState("Should I buy a flat now or keep renting for a couple more years?");
+  const [market, setMarket] = useState<Market>(DEFAULT_MARKET);
+  const [income, setIncome] = useState(String(DEFAULT_MARKET.sample.income));
+  const [savings, setSavings] = useState(String(DEFAULT_MARKET.sample.savings));
+  const [rent, setRent] = useState(String(DEFAULT_MARKET.sample.rent));
+  const [age, setAge] = useState(String(DEFAULT_MARKET.sample.age));
+  const [goal, setGoal] = useState("Should I buy a home now or keep renting for a couple more years?");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
@@ -59,13 +63,24 @@ export default function Home() {
   const [snack, setSnack] = useState(false);
 
   const resultRef = useRef<HTMLDivElement>(null);
-  const formRef = useRef<HTMLDivElement>(null);
+  const advisorRef = useRef<HTMLDivElement>(null);
+
+  function changeMarket(code: string) {
+    const m = getMarket(code);
+    setMarket(m);
+    setIncome(String(m.sample.income));
+    setSavings(String(m.sample.savings));
+    setRent(String(m.sample.rent));
+    setAge(String(m.sample.age));
+    setResult(null);
+    setErrors({});
+  }
 
   function validate() {
     const e: Record<string, string> = {};
-    if (toNum(income) <= 0) e.income = "Enter your monthly income in ₹.";
-    if (toNum(savings) < 0) e.savings = "Enter an amount in ₹ (0 if none).";
-    if (toNum(rent) < 0) e.rent = "Enter an amount in ₹ (0 if none).";
+    if (toNum(income) <= 0) e.income = "Enter your monthly income.";
+    if (toNum(savings) < 0) e.savings = "Enter an amount (0 if none).";
+    if (toNum(rent) < 0) e.rent = "Enter an amount (0 if none).";
     const a = toNum(age);
     if (a < 18 || a > 70) e.age = "Enter an age between 18 and 70.";
     setErrors(e);
@@ -78,24 +93,19 @@ export default function Home() {
     setResult(null);
     setOpenTerm(null);
     window.setTimeout(() => {
-      const r = computeResult({
-        income: toNum(income),
-        savings: toNum(savings),
-        rent: toNum(rent),
-        age: toNum(age),
-        goal,
-      });
+      const r = computeResult(
+        { income: toNum(income), savings: toNum(savings), rent: toNum(rent), age: toNum(age), goal },
+        market
+      );
       setResult(r);
       setLoading(false);
-      window.setTimeout(
-        () => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
-        80
-      );
+      window.setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
     }, 900);
   }
 
   const ready = result?.status === "ready";
   const accent = ready ? "#16A34A" : "#D97706";
+  const cur = market.currencySymbol;
 
   return (
     <>
@@ -130,132 +140,180 @@ export default function Home() {
               haus<Box component="span" sx={{ color: "primary.main" }}>.</Box>
             </Typography>
           </Stack>
-          <Typography variant="body2" color="text.secondary" sx={{ display: { xs: "none", sm: "block" } }}>
-            Plain-language home-buying advice
-          </Typography>
+          <Button variant="contained" size="small" onClick={() => advisorRef.current?.scrollIntoView({ behavior: "smooth" })}>
+            Get my verdict
+          </Button>
         </Toolbar>
       </AppBar>
 
-      <Container maxWidth="md" sx={{ py: { xs: 4, md: 7 }, pb: 12 }}>
-        {/* Hero */}
-        <MotionDiv initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
-          <Chip
-            icon={<AutoAwesomeRoundedIcon />}
-            label="Made for Bangalore first-time buyers"
-            sx={{ mb: 2, bgcolor: "primary.light", color: "primary.dark", fontWeight: 600 }}
-          />
-          <Typography variant="h1" sx={{ fontSize: { xs: "2rem", md: "3rem" }, mb: 1.5, lineHeight: 1.1 }}>
-            Should you buy a home yet?
-          </Typography>
-          <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400, mb: 4, maxWidth: 560 }}>
-            Tell us your situation. haus gives you a clear, jargon-free verdict — what you can afford,
-            and whether now is the right time.
-          </Typography>
-        </MotionDiv>
-
-        {/* Form */}
-        <MotionDiv
-          ref={formRef}
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <Paper elevation={0} sx={{ p: { xs: 3, md: 4 }, borderRadius: 4, border: "1px solid", borderColor: "divider" }}>
-            <Stack spacing={2.5}>
-              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5 }}>
-                <TextField
-                  label="Monthly income"
-                  value={income}
-                  onChange={(e) => setIncome(e.target.value)}
-                  error={!!errors.income}
-                  helperText={errors.income || "Your take-home pay per month"}
-                  slotProps={{ input: { startAdornment: <InputAdornment position="start">₹</InputAdornment> } }}
-                  fullWidth
-                />
-                <TextField
-                  label="Current savings"
-                  value={savings}
-                  onChange={(e) => setSavings(e.target.value)}
-                  error={!!errors.savings}
-                  helperText={errors.savings || "What you've set aside today"}
-                  slotProps={{ input: { startAdornment: <InputAdornment position="start">₹</InputAdornment> } }}
-                  fullWidth
-                />
-                <TextField
-                  label="Current rent"
-                  value={rent}
-                  onChange={(e) => setRent(e.target.value)}
-                  error={!!errors.rent}
-                  helperText={errors.rent || "Monthly rent now (0 if none)"}
-                  slotProps={{ input: { startAdornment: <InputAdornment position="start">₹</InputAdornment> } }}
-                  fullWidth
-                />
-                <TextField
-                  label="Age"
-                  value={age}
-                  onChange={(e) => setAge(e.target.value)}
-                  error={!!errors.age}
-                  helperText={errors.age || "Used to estimate loan tenure"}
-                  fullWidth
-                />
-              </Box>
-              <TextField
-                label="Your goal or question"
-                value={goal}
-                onChange={(e) => setGoal(e.target.value)}
-                placeholder="e.g. Should I buy now or keep renting?"
-                multiline
-                minRows={2}
-                fullWidth
-              />
-              <Button
-                variant="contained"
-                size="large"
-                onClick={onSubmit}
-                disabled={loading}
-                endIcon={!loading && <ArrowForwardRoundedIcon />}
-                sx={{ py: 1.5, fontSize: "1rem", boxShadow: "0 8px 20px rgba(79,70,229,0.25)" }}
+      {/* Hero */}
+      <Box sx={{ textAlign: "center", px: 2, pt: { xs: 7, md: 11 }, pb: { xs: 5, md: 7 } }}>
+        <Container maxWidth="md">
+          <MotionDiv initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
+            <Chip
+              icon={<PublicRoundedIcon />}
+              label="Now in 5 countries"
+              sx={{ mb: 3, bgcolor: "primary.light", color: "primary.dark", fontWeight: 600 }}
+            />
+            <Typography variant="h1" sx={{ fontSize: { xs: "2.4rem", md: "4rem" }, lineHeight: 1.05, mb: 2.5 }}>
+              Buy a home with{" "}
+              <Box
+                component="span"
+                sx={{
+                  background: "linear-gradient(120deg,#4F46E5,#9333EA)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
               >
-                {loading ? (
-                  <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
-                    <CircularProgress size={20} color="inherit" />
-                    <span>Crunching your numbers…</span>
-                  </Stack>
-                ) : (
-                  "Get my verdict"
-                )}
-              </Button>
-              <Typography variant="caption" color="text.secondary" align="center">
-                Guidance, not financial advice.
-              </Typography>
+                confidence
+              </Box>
+              .
+            </Typography>
+            <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400, mb: 4, maxWidth: 620, mx: "auto" }}>
+              haus is your unbiased, plain-language home-buying advisor. Tell us your situation and get a
+              clear verdict in seconds — what you can afford, and whether now is the right time.
+            </Typography>
+            <Button
+              variant="contained"
+              size="large"
+              endIcon={<ArrowForwardRoundedIcon />}
+              onClick={() => advisorRef.current?.scrollIntoView({ behavior: "smooth" })}
+              sx={{ py: 1.6, px: 4, fontSize: "1.05rem", boxShadow: "0 12px 28px rgba(79,70,229,0.3)" }}
+            >
+              Get my free verdict
+            </Button>
+            <Stack direction="row" spacing={1} sx={{ justifyContent: "center", mt: 4, flexWrap: "wrap" }} useFlexGap>
+              {MARKETS.map((m) => (
+                <Chip key={m.code} label={`${m.flag} ${m.name}`} variant="outlined" size="small" sx={{ fontWeight: 500 }} />
+              ))}
             </Stack>
-          </Paper>
-        </MotionDiv>
+          </MotionDiv>
+        </Container>
+      </Box>
+
+      {/* Value props */}
+      <Container maxWidth="md" sx={{ pb: { xs: 4, md: 6 } }}>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(3,1fr)" }, gap: 2.5 }}>
+          {[
+            { t: "Clear verdict", d: "Buy now or keep renting — a straight answer, not a sales pitch." },
+            { t: "Plain language", d: "Every term explained. No confusing jargon, ever." },
+            { t: "Built for your country", d: "Local currency, interest rates, and down-payment norms." },
+          ].map((v) => (
+            <Paper key={v.t} elevation={0} sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider" }}>
+              <Typography variant="h6" sx={{ mb: 0.5 }}>{v.t}</Typography>
+              <Typography variant="body2" color="text.secondary">{v.d}</Typography>
+            </Paper>
+          ))}
+        </Box>
+      </Container>
+
+      {/* Advisor */}
+      <Container maxWidth="md" sx={{ pb: 12 }}>
+        <Box ref={advisorRef} sx={{ scrollMarginTop: 80, pt: 4 }}>
+          <MotionDiv initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
+            <Paper elevation={0} sx={{ p: { xs: 3, md: 4 }, borderRadius: 4, border: "1px solid", borderColor: "divider" }}>
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ justifyContent: "space-between", alignItems: { sm: "center" }, mb: 1 }}>
+                <Box>
+                  <Typography variant="h4">Should you buy a home yet?</Typography>
+                  <Typography color="text.secondary" sx={{ mt: 0.5 }}>
+                    Fill this in for a clear, jargon-free verdict.
+                  </Typography>
+                </Box>
+                <TextField
+                  select
+                  label="Country"
+                  value={market.code}
+                  onChange={(e) => changeMarket(e.target.value)}
+                  sx={{ minWidth: 180 }}
+                >
+                  {MARKETS.map((m) => (
+                    <MenuItem key={m.code} value={m.code}>
+                      {m.flag}&nbsp;&nbsp;{m.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Stack>
+
+              <Stack spacing={2.5} sx={{ mt: 2 }}>
+                <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5 }}>
+                  <TextField
+                    label="Monthly income"
+                    value={income}
+                    onChange={(e) => setIncome(e.target.value)}
+                    error={!!errors.income}
+                    helperText={errors.income || "Your take-home pay per month"}
+                    slotProps={{ input: { startAdornment: <InputAdornment position="start">{cur}</InputAdornment> } }}
+                    fullWidth
+                  />
+                  <TextField
+                    label="Current savings"
+                    value={savings}
+                    onChange={(e) => setSavings(e.target.value)}
+                    error={!!errors.savings}
+                    helperText={errors.savings || "What you've set aside today"}
+                    slotProps={{ input: { startAdornment: <InputAdornment position="start">{cur}</InputAdornment> } }}
+                    fullWidth
+                  />
+                  <TextField
+                    label="Current rent"
+                    value={rent}
+                    onChange={(e) => setRent(e.target.value)}
+                    error={!!errors.rent}
+                    helperText={errors.rent || "Monthly rent now (0 if none)"}
+                    slotProps={{ input: { startAdornment: <InputAdornment position="start">{cur}</InputAdornment> } }}
+                    fullWidth
+                  />
+                  <TextField
+                    label="Age"
+                    value={age}
+                    onChange={(e) => setAge(e.target.value)}
+                    error={!!errors.age}
+                    helperText={errors.age || "Used to estimate loan tenure"}
+                    fullWidth
+                  />
+                </Box>
+                <TextField
+                  label="Your goal or question"
+                  value={goal}
+                  onChange={(e) => setGoal(e.target.value)}
+                  multiline
+                  minRows={2}
+                  fullWidth
+                />
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={onSubmit}
+                  disabled={loading}
+                  endIcon={!loading && <ArrowForwardRoundedIcon />}
+                  sx={{ py: 1.5, fontSize: "1rem", boxShadow: "0 8px 20px rgba(79,70,229,0.25)" }}
+                >
+                  {loading ? (
+                    <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
+                      <CircularProgress size={20} color="inherit" />
+                      <span>Crunching your numbers…</span>
+                    </Stack>
+                  ) : (
+                    "Get my verdict"
+                  )}
+                </Button>
+                <Typography variant="caption" color="text.secondary" align="center">
+                  Guidance, not financial advice.
+                </Typography>
+              </Stack>
+            </Paper>
+          </MotionDiv>
+        </Box>
 
         {/* Result */}
         <Box ref={resultRef} sx={{ scrollMarginTop: 80 }}>
           <AnimatePresence>
             {result && (
               <MotionDiv variants={container} initial="hidden" animate="show" exit={{ opacity: 0 }}>
-                {/* Verdict */}
                 <MotionDiv variants={item}>
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      mt: 4,
-                      p: { xs: 3, md: 4 },
-                      borderRadius: 4,
-                      border: "1px solid",
-                      borderColor: "divider",
-                      position: "relative",
-                      overflow: "hidden",
-                    }}
-                  >
+                  <Paper elevation={0} sx={{ mt: 4, p: { xs: 3, md: 4 }, borderRadius: 4, border: "1px solid", borderColor: "divider", position: "relative", overflow: "hidden" }}>
                     <Box sx={{ position: "absolute", top: 0, left: 0, right: 0, height: 6, background: accent }} />
-                    <Chip
-                      label={result.chipLabel}
-                      sx={{ mt: 1, mb: 2, fontWeight: 700, color: "#fff", bgcolor: accent }}
-                    />
+                    <Chip label={result.chipLabel} sx={{ mt: 1, mb: 2, fontWeight: 700, color: "#fff", bgcolor: accent }} />
                     <Typography variant="h4" sx={{ mb: 1.5 }}>
                       {ready ? "You're in a strong position to buy." : "Renting is the smarter move — for now."}
                     </Typography>
@@ -265,15 +323,14 @@ export default function Home() {
                   </Paper>
                 </MotionDiv>
 
-                {/* Stats */}
                 <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5, mt: 2.5 }}>
                   <MotionDiv variants={item}>
                     <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider", height: "100%" }}>
                       <Typography variant="overline" color="text.secondary">You can afford</Typography>
                       <Typography variant="h3" sx={{ my: 0.5 }}>
-                        <AnimatedNumber value={result.priceMin} format={inrCompact} />
+                        <AnimatedNumber value={result.priceMin} format={(n) => fmtCompact(n, market)} />
                         {" – "}
-                        <AnimatedNumber value={result.priceMax} format={inrCompact} />
+                        <AnimatedNumber value={result.priceMax} format={(n) => fmtCompact(n, market)} />
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
                         Based on your income, savings, and a safe EMI limit.
@@ -284,7 +341,7 @@ export default function Home() {
                     <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider", height: "100%" }}>
                       <Typography variant="overline" color="text.secondary">Estimated EMI</Typography>
                       <Typography variant="h3" sx={{ my: 0.5 }}>
-                        <AnimatedNumber value={result.emi} format={inrFull} />
+                        <AnimatedNumber value={result.emi} format={(n) => fmtFull(n, market)} />
                         <Box component="span" sx={{ fontSize: "1rem", fontWeight: 600, color: "text.secondary" }}>/mo</Box>
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
@@ -294,7 +351,6 @@ export default function Home() {
                   </MotionDiv>
                 </Box>
 
-                {/* Jargon */}
                 <MotionDiv variants={item}>
                   <Paper elevation={0} sx={{ mt: 2.5, p: { xs: 3, md: 4 }, borderRadius: 4, border: "1px solid", borderColor: "divider" }}>
                     <Typography variant="h6" sx={{ mb: 2 }}>Jargon, explained</Typography>
@@ -312,23 +368,8 @@ export default function Home() {
                     </Stack>
                     <AnimatePresence mode="wait">
                       {openTerm !== null && (
-                        <MotionDiv
-                          key={openTerm}
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.25 }}
-                        >
-                          <Box
-                            sx={{
-                              mt: 2,
-                              p: 2,
-                              bgcolor: "#F1F5F9",
-                              borderRadius: 2,
-                              borderLeft: "3px solid",
-                              borderColor: "primary.main",
-                            }}
-                          >
+                        <MotionDiv key={openTerm} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.25 }}>
+                          <Box sx={{ mt: 2, p: 2, bgcolor: "#F1F5F9", borderRadius: 2, borderLeft: "3px solid", borderColor: "primary.main" }}>
                             <Typography variant="body2">
                               <b>{result.terms[openTerm].term}:</b> {result.terms[openTerm].explanation}
                             </Typography>
@@ -344,27 +385,13 @@ export default function Home() {
                   </Paper>
                 </MotionDiv>
 
-                {/* Next steps */}
                 <MotionDiv variants={item}>
                   <Paper elevation={0} sx={{ mt: 2.5, p: { xs: 3, md: 4 }, borderRadius: 4, border: "1px solid", borderColor: "divider" }}>
                     <Typography variant="h6" sx={{ mb: 2 }}>Your next steps</Typography>
                     <Stack spacing={2}>
                       {result.nextSteps.map((s, i) => (
                         <Stack key={i} direction="row" spacing={2} sx={{ alignItems: "flex-start" }}>
-                          <Box
-                            sx={{
-                              flexShrink: 0,
-                              width: 28,
-                              height: 28,
-                              borderRadius: "50%",
-                              bgcolor: "primary.light",
-                              color: "primary.dark",
-                              display: "grid",
-                              placeItems: "center",
-                              fontWeight: 700,
-                              fontSize: "0.85rem",
-                            }}
-                          >
+                          <Box sx={{ flexShrink: 0, width: 28, height: 28, borderRadius: "50%", bgcolor: "primary.light", color: "primary.dark", display: "grid", placeItems: "center", fontWeight: 700, fontSize: "0.85rem" }}>
                             {i + 1}
                           </Box>
                           <Typography sx={{ pt: 0.3 }}>{s}</Typography>
@@ -374,21 +401,20 @@ export default function Home() {
                   </Paper>
                 </MotionDiv>
 
-                {/* Assumptions + actions */}
                 <MotionDiv variants={item}>
                   <Box sx={{ mt: 2.5, p: 2.5, bgcolor: "#F1F5F9", borderRadius: 3 }}>
                     <Typography variant="caption" color="text.secondary">
-                      <b>Assumptions:</b> {result.assumptions.interestPct}% annual interest ·{" "}
+                      <b>Assumptions ({market.name}):</b> {result.assumptions.interestPct}% annual interest ·{" "}
                       {result.tenureYears}-year tenure · {result.assumptions.downPaymentPct}% down payment ·
-                      EMI capped at {result.assumptions.emiToIncomeCapPct}% of income. haus gives educational
-                      guidance, not financial advice.
+                      EMI capped at {result.assumptions.emiCapPct}% of income. haus gives educational guidance,
+                      not financial advice.
                     </Typography>
                   </Box>
                   <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} sx={{ mt: 2.5 }}>
                     <Button variant="contained" color="success" startIcon={<FavoriteRoundedIcon />} onClick={() => setSnack(true)}>
                       This helped me
                     </Button>
-                    <Button variant="text" onClick={() => formRef.current?.scrollIntoView({ behavior: "smooth" })}>
+                    <Button variant="text" onClick={() => advisorRef.current?.scrollIntoView({ behavior: "smooth" })}>
                       Edit my details
                     </Button>
                   </Stack>
@@ -399,12 +425,7 @@ export default function Home() {
         </Box>
       </Container>
 
-      <Snackbar
-        open={snack}
-        autoHideDuration={2600}
-        onClose={() => setSnack(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
+      <Snackbar open={snack} autoHideDuration={2600} onClose={() => setSnack(false)} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
         <Alert severity="success" variant="filled" sx={{ borderRadius: 2 }}>
           Glad it helped 💙
         </Alert>

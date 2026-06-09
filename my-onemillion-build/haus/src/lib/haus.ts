@@ -1,12 +1,7 @@
 // haus — core advisory logic (plain code, per refined-prd.md business rules).
-// All money in INR. No external calls; fully standalone.
+// Market-aware: currency + assumptions come from the selected Market. No external calls.
 
-export const ASSUMPTIONS = {
-  interestPct: 8.5, // annual interest rate assumption
-  tenureCapYears: 20, // max loan tenure
-  downPaymentPct: 20, // minimum down payment (% of price)
-  emiToIncomeCapPct: 40, // EMI must not exceed this % of monthly income
-};
+import { type Market, fmtFull, fmtCompact } from "./markets";
 
 export interface Inputs {
   income: number; // monthly take-home
@@ -29,22 +24,12 @@ export interface Result {
   priceMax: number;
   emi: number;
   loanBoundPrice: number;
-  shortfall: number; // extra savings needed to reach income-based budget
+  shortfall: number;
   tenureYears: number;
-  assumptions: typeof ASSUMPTIONS;
+  assumptions: { interestPct: number; tenureYears: number; downPaymentPct: number; emiCapPct: number };
   terms: Term[];
   nextSteps: string[];
 }
-
-// ---- formatting helpers ----
-export const inrFull = (n: number) => "₹" + Math.round(n).toLocaleString("en-IN");
-
-export const inrCompact = (n: number) => {
-  const v = Math.round(n);
-  if (v >= 1e7) return "₹" + (v / 1e7).toFixed(2).replace(/\.?0+$/, "") + " Cr";
-  if (v >= 1e5) return "₹" + (v / 1e5).toFixed(1).replace(/\.0$/, "") + " L";
-  return "₹" + v.toLocaleString("en-IN");
-};
 
 // Monthly payment for a given loan principal.
 function emiForLoan(loan: number, monthlyRate: number, months: number) {
@@ -53,52 +38,45 @@ function emiForLoan(loan: number, monthlyRate: number, months: number) {
   return (loan * monthlyRate * f) / (f - 1);
 }
 
-export function computeResult(input: Inputs): Result {
-  const { interestPct, tenureCapYears, downPaymentPct, emiToIncomeCapPct } = ASSUMPTIONS;
-  const down = downPaymentPct / 100;
-  const r = interestPct / 100 / 12;
+export function computeResult(input: Inputs, m: Market): Result {
+  const down = m.downPaymentPct / 100;
+  const r = m.interestPct / 100 / 12;
 
-  // Tenure shrinks as you near retirement (~60), capped at 20 years.
-  const tenureYears = Math.max(5, Math.min(tenureCapYears, 60 - input.age));
+  // Tenure shrinks as you near retirement, capped at 20 years.
+  const tenureYears = Math.max(5, Math.min(20, m.retirementAge - input.age));
   const n = tenureYears * 12;
 
-  // Most you can pay monthly without breaking the safe EMI-to-income cap.
-  const maxEmi = (emiToIncomeCapPct / 100) * input.income;
-
-  // Biggest loan that EMI can service.
+  const maxEmi = (m.emiCapPct / 100) * input.income;
   const maxLoan = (maxEmi * (1 - Math.pow(1 + r, -n))) / r;
 
-  // Two ceilings on home price: what your income can borrow, and what your
-  // savings can cover as a 20% down payment.
   const loanBoundPrice = maxLoan / (1 - down);
   const savingsBoundPrice = input.savings / down;
 
   const affordable = Math.max(0, Math.min(loanBoundPrice, savingsBoundPrice));
   const priceMax = affordable;
   const priceMin = affordable * 0.85;
-
-  // EMI for the affordable home.
   const emi = emiForLoan(priceMax * (1 - down), r, n);
 
-  // Savings is the bottleneck when it can't cover 20% of the income-based budget.
   const savingsIsLimit = savingsBoundPrice < loanBoundPrice;
-  const downNeeded = down * loanBoundPrice; // to unlock the full income-based budget
+  const downNeeded = down * loanBoundPrice;
   const shortfall = Math.max(0, downNeeded - input.savings);
-
   const status: Result["status"] = savingsIsLimit ? "rent" : "ready";
+
+  const full = (v: number) => fmtFull(v, m);
+  const compact = (v: number) => fmtCompact(v, m);
 
   const terms: Term[] = [
     {
       term: "EMI",
       explanation:
         `Equated Monthly Installment — the fixed amount you'd pay the bank each month. ` +
-        `Yours would be about ${inrFull(emi)}.`,
+        `Yours would be about ${full(emi)}.`,
     },
     {
       term: "Down payment",
       explanation:
-        `The upfront part of the price you pay yourself (here ${downPaymentPct}%). ` +
-        `On a ${inrCompact(priceMax)} home that's about ${inrCompact(priceMax * down)}.`,
+        `The upfront part of the price you pay yourself (here ${m.downPaymentPct}%). ` +
+        `On a ${compact(priceMax)} home that's about ${compact(priceMax * down)}.`,
     },
     {
       term: "Tenure",
@@ -109,7 +87,7 @@ export function computeResult(input: Inputs): Result {
     {
       term: "Interest rate",
       explanation:
-        `The yearly percentage the bank charges on your loan — assumed ${interestPct}% here. ` +
+        `The yearly percentage the bank charges on your loan — assumed ${m.interestPct}% for ${m.name}. ` +
         `Real rates vary by bank and your credit profile.`,
     },
     {
@@ -126,22 +104,22 @@ export function computeResult(input: Inputs): Result {
   if (status === "ready") {
     verdict =
       `Good news — you're in a strong position to buy. Based on your income and savings, ` +
-      `you can comfortably afford a home in the ${inrCompact(priceMin)}–${inrCompact(priceMax)} range, ` +
-      `with an estimated EMI of about ${inrFull(emi)}/month — within a safe share of your income.`;
+      `you can comfortably afford a home in the ${compact(priceMin)}–${compact(priceMax)} range, ` +
+      `with an estimated EMI of about ${full(emi)}/month — within a safe share of your income.`;
     nextSteps = [
       "Get a home-loan pre-approval to lock in your real budget.",
       "Keep 3–6 months of expenses as a separate emergency fund (don't spend it on the down payment).",
       "Compare interest rates from at least 3 lenders before committing.",
-      "Budget ~7–10% extra for stamp duty, registration, and one-time costs.",
+      "Budget ~7–10% extra for taxes, registration, and one-time costs.",
     ];
   } else {
     verdict =
-      `Renting is the smarter move for now. You can afford up to about ${inrCompact(priceMax)} today, ` +
-      `but that's limited by your savings rather than your income. Save roughly ${inrCompact(shortfall)} more ` +
-      `toward your down payment and your budget could rise to around ${inrCompact(loanBoundPrice)}. ` +
+      `Renting is the smarter move for now. You can afford up to about ${compact(priceMax)} today, ` +
+      `but that's limited by your savings rather than your income. Save roughly ${compact(shortfall)} more ` +
+      `toward your down payment and your budget could rise to around ${compact(loanBoundPrice)}. ` +
       `Renting a little longer while you build that cushion puts you in a much stronger position.`;
     nextSteps = [
-      `Keep renting and aim to save about ${inrCompact(shortfall)} more toward your down payment.`,
+      `Keep renting and aim to save about ${compact(shortfall)} more toward your down payment.`,
       "Park that down-payment money somewhere low-risk so it's ready when you are.",
       "Keep 3–6 months of expenses as a separate emergency fund.",
       'Re-run haus as your savings grow to see when the verdict flips to "buy".',
@@ -158,7 +136,12 @@ export function computeResult(input: Inputs): Result {
     loanBoundPrice,
     shortfall,
     tenureYears,
-    assumptions: ASSUMPTIONS,
+    assumptions: {
+      interestPct: m.interestPct,
+      tenureYears,
+      downPaymentPct: m.downPaymentPct,
+      emiCapPct: m.emiCapPct,
+    },
     terms,
     nextSteps,
   };
