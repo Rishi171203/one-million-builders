@@ -1,0 +1,23 @@
+{
+  "course": "OneMillion Builder",
+  "current_day": 3,
+  "current_phase": "spec",
+  "next_agent": "spec",
+  "product_dir": "my-onemillion-build",
+  "status": "day_2_complete",
+  "last_verified_day": 2,
+  "product": {
+    "builder_name": "Rishi",
+    "product_name": "haus",
+    "target_user": "First-time homebuyers aged 22-32, young working professionals; v1 launch market narrowed to Bangalore (global is long-term vision)"
+  },
+  "current_blocker": "None",
+  "next_smallest_action": "Open Day 3 — Lock The Spec (course/days/day-03-spec/learn.md)",
+  "preflight": {
+    "canonical_landing_page": "https://github.com/siddsdixit/one-million-builders/tree/main/course",
+    "upstream_repo": "siddsdixit/one-million-builders",
+    "fork_repo": "manual",
+    "origin_remote": "https://github.com/Rishi171203/one-million-builders.git",
+    "upstream_remote": "https://github.com/siddsdixit/one-million-builders.git"
+  }
+}
