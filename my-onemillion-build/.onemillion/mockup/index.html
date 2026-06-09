@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>haus — design mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#4F46E5; --primary-hover:#4338CA; --primary-container:#E0E7FF; --on-primary:#fff;
+    --bg:#F8FAFC; --surface:#fff; --surface-muted:#F1F5F9;
+    --text:#0F172A; --text-2:#475569; --border:#E2E8F0;
+    --success:#16A34A; --warning:#D97706; --error:#DC2626;
+    --r-sm:8px; --r-md:12px; --r-lg:16px; --r-pill:999px;
+    --sh-sm:0 1px 3px rgba(15,23,42,.08),0 1px 2px rgba(15,23,42,.04);
+    --sh-md:0 4px 16px rgba(15,23,42,.08);
+    --sh-lg:0 12px 32px rgba(15,23,42,.10);
+    --font-h:"Plus Jakarta Sans",system-ui,sans-serif;
+    --font-b:"Inter",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font-b);background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:var(--font-h);line-height:1.2}
+
+  /* App bar */
+  .appbar{position:sticky;top:0;z-index:10;background:var(--surface);border-bottom:1px solid var(--border);
+    display:flex;align-items:center;justify-content:space-between;padding:16px 24px;box-shadow:var(--sh-sm)}
+  .brand{font-family:var(--font-h);font-weight:800;font-size:22px;letter-spacing:-.5px;color:var(--primary)}
+  .brand span{color:var(--text)}
+  .tagline{color:var(--text-2);font-size:14px}
+  @media(max-width:600px){.tagline{display:none}}
+
+  .wrap{max-width:720px;margin:0 auto;padding:40px 20px 80px}
+
+  /* Card */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+    box-shadow:var(--sh-sm);padding:32px;margin-bottom:24px}
+  .hero h1{font-size:34px;font-weight:800;letter-spacing:-1px;margin-bottom:10px}
+  .hero p.sub{color:var(--text-2);font-size:17px;margin-bottom:28px}
+
+  /* Form */
+  .field{margin-bottom:20px}
+  label{display:block;font-size:14px;font-weight:600;margin-bottom:6px}
+  .input{display:flex;align-items:center;border:1px solid var(--border);border-radius:var(--r-sm);
+    background:var(--surface);transition:border-color .2s,box-shadow .2s;overflow:hidden}
+  .input:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-container)}
+  .input .adorn{padding:12px 10px;background:var(--surface-muted);color:var(--text-2);font-weight:600}
+  .input input,.input textarea{border:0;outline:0;flex:1;padding:12px 14px;font-family:var(--font-b);font-size:16px;background:transparent;color:var(--text);resize:vertical}
+  .help{font-size:13px;color:var(--text-2);margin-top:5px}
+
+  .btn{font-family:var(--font-h);font-weight:600;font-size:15px;border:0;border-radius:var(--r-md);
+    padding:14px 22px;cursor:pointer;transition:background .2s,transform .1s}
+  .btn-primary{background:var(--primary);color:var(--on-primary);width:100%}
+  .btn-primary:hover{background:var(--primary-hover)}
+  .btn-primary:active{transform:translateY(1px)}
+  .btn-text{background:transparent;color:var(--primary);padding:10px 12px;width:auto}
+  .footnote{font-size:12px;color:var(--text-2);text-align:center;margin-top:16px}
+
+  /* Result */
+  #result{display:none;animation:rise .3s ease-out}
+  #result.show{display:block}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;
+    padding:6px 12px;border-radius:var(--r-pill)}
+  .chip-warning{background:#FEF3C7;color:#92400E}
+  .chip-success{background:#DCFCE7;color:#166534}
+  .verdict h2{font-size:26px;font-weight:700;margin:14px 0 10px;letter-spacing:-.5px}
+  .verdict p{color:var(--text-2);font-size:16px}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  @media(max-width:680px){.grid2{grid-template-columns:1fr}}
+  .stat-label{font-size:13px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px}
+  .stat-big{font-family:var(--font-h);font-weight:800;font-size:30px;letter-spacing:-1px;margin:6px 0 8px}
+  .stat-note{font-size:14px;color:var(--text-2)}
+
+  h3.section{font-size:19px;font-weight:700;margin-bottom:14px}
+  .terms{display:flex;flex-wrap:wrap;gap:10px}
+  .term{background:var(--primary-container);color:var(--primary-hover);font-weight:600;font-size:14px;
+    padding:8px 14px;border-radius:var(--r-pill);cursor:pointer;transition:transform .15s}
+  .term:hover{transform:translateY(-2px)}
+  .term-def{margin-top:14px;background:var(--surface-muted);border-radius:var(--r-md);padding:14px 16px;
+    font-size:15px;color:var(--text);border-left:3px solid var(--primary)}
+  ol.steps{margin-left:20px}
+  ol.steps li{margin-bottom:10px;font-size:15px}
+  .assumptions{background:var(--surface-muted);border-radius:var(--r-md);padding:16px 18px;font-size:13px;color:var(--text-2)}
+  .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+  .btn-help{background:var(--success);color:#fff;width:auto}
+
+  /* Snackbar */
+  .snackbar{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(120%);
+    background:var(--text);color:#fff;padding:14px 22px;border-radius:var(--r-md);box-shadow:var(--sh-lg);
+    font-size:15px;transition:transform .3s ease-out;z-index:50}
+  .snackbar.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+  <div class="appbar">
+    <div class="brand">haus<span>.</span></div>
+    <div class="tagline">Plain-language home-buying advice</div>
+  </div>
+
+  <div class="wrap">
+    <!-- INPUT -->
+    <div class="card hero">
+      <h1>Should you buy a home yet?</h1>
+      <p class="sub">Tell us your situation. We'll give you a clear, jargon-free answer in seconds.</p>
+
+      <div class="field">
+        <label>Monthly income</label>
+        <div class="input"><span class="adorn">₹</span><input id="income" type="text" value="90,000"></div>
+        <div class="help">Your take-home pay per month</div>
+      </div>
+      <div class="field">
+        <label>Current savings</label>
+        <div class="input"><span class="adorn">₹</span><input id="savings" type="text" value="7,00,000"></div>
+        <div class="help">What you have set aside today</div>
+      </div>
+      <div class="field">
+        <label>Current rent</label>
+        <div class="input"><span class="adorn">₹</span><input id="rent" type="text" value="28,000"></div>
+        <div class="help">What you pay in rent now (0 if none)</div>
+      </div>
+      <div class="field">
+        <label>Age</label>
+        <div class="input"><input id="age" type="text" value="27"></div>
+        <div class="help">Used to estimate loan tenure</div>
+      </div>
+      <div class="field">
+        <label>Your goal or question</label>
+        <div class="input"><textarea id="goal" rows="2">Should I buy a flat now or keep renting for a couple more years?</textarea></div>
+      </div>
+
+      <button class="btn btn-primary" onclick="getVerdict()">Get my verdict</button>
+      <div class="footnote">Guidance, not financial advice.</div>
+    </div>
+
+    <!-- RESULT -->
+    <div id="result">
+      <div class="card verdict">
+        <span class="chip chip-warning">● Rent for now</span>
+        <h2>Renting is the smarter move — for now.</h2>
+        <p>You can comfortably afford a home in the ₹38L–₹46L range, but your savings cover only part of a healthy down payment. Renting ~18 more months while you build savings puts you in a much stronger position.</p>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="stat-label">You can afford</div>
+          <div class="stat-big">₹38L – ₹46L</div>
+          <div class="stat-note">Based on your income, savings, and a safe EMI limit.</div>
+        </div>
+        <div class="card">
+          <div class="stat-label">Estimated EMI</div>
+          <div class="stat-big">₹32,500<span style="font-size:16px;font-weight:600;color:var(--text-2)">/mo</span></div>
+          <div class="stat-note">Assumes 8.5% interest, 20-year tenure.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="section">Jargon, explained</h3>
+        <div class="terms">
+          <span class="term" onclick="showDef('EMI','Equated Monthly Installment — the fixed amount you would pay the bank each month. Yours would be about ₹32,500.')">EMI</span>
+          <span class="term" onclick="showDef('Down payment','The upfront chunk you pay yourself (~20%). On a ₹42L home that is about ₹8.4L.')">Down payment</span>
+          <span class="term" onclick="showDef('Tenure','How many years you take to repay the loan. A longer tenure (20 years) means smaller monthly EMIs.')">Tenure</span>
+          <span class="term" onclick="showDef('Pre-approval','A bank&#39;s early estimate of how much it will lend you, before you pick a home.')">Pre-approval</span>
+        </div>
+        <div class="term-def" id="termDef"><strong>Tap a term</strong> to see it explained in plain language.</div>
+      </div>
+
+      <div class="card">
+        <h3 class="section">Your next steps</h3>
+        <ol class="steps">
+          <li>Keep renting and aim to save ~₹3L more over the next 12–18 months.</li>
+          <li>Park the down-payment savings in a low-risk option so it's ready when you are.</li>
+          <li>In ~12 months, get a loan pre-approval to confirm your real budget.</li>
+          <li>Re-run haus once your savings cross ₹10L to see if the verdict flips to "buy".</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <div class="assumptions">
+          <strong>Assumptions:</strong> 8.5% annual interest · 20-year tenure · 20% down payment · EMI capped at 40% of income.
+          <br><br>haus gives educational guidance, not financial advice.
+        </div>
+        <div class="actions">
+          <button class="btn btn-help" onclick="helped()">👍 This helped me</button>
+          <button class="btn btn-text" onclick="document.querySelector('.hero').scrollIntoView({behavior:'smooth'})">Edit my details</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="snackbar" id="snack">Glad it helped 💙</div>
+
+<script>
+  function getVerdict(){
+    const r=document.getElementById('result');
+    r.classList.add('show');
+    r.scrollIntoView({behavior:'smooth'});
+  }
+  function showDef(term,def){
+    document.getElementById('termDef').innerHTML='<strong>'+term+':</strong> '+def;
+  }
+  function helped(){
+    const s=document.getElementById('snack');
+    s.classList.add('show');
+    setTimeout(()=>s.classList.remove('show'),2600);
+  }
+</script>
+</body>
+</html>

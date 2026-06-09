@@ -1,0 +1,39 @@
+{
+  "_note": "Realistic sample data so the mockup looks active. Matches refined-prd.md data schema.",
+  "sampleAssessment": {
+    "input": {
+      "monthly_income": 90000,
+      "current_savings": 700000,
+      "current_rent": 28000,
+      "age": 27,
+      "goal": "Should I buy a flat now or keep renting for a couple more years?"
+    },
+    "generated": {
+      "verdict_chip": "Rent for now",
+      "verdict_status": "warning",
+      "verdict": "Renting is the smarter move for now. You can comfortably afford a home in the ₹38L–₹46L range, but your savings cover only part of a healthy down payment. Renting ~18 more months while you build savings puts you in a much stronger position.",
+      "affordable_price_min": 3800000,
+      "affordable_price_max": 4600000,
+      "estimated_emi": 32500,
+      "assumptions": {
+        "interest_rate_pct": 8.5,
+        "tenure_years": 20,
+        "down_payment_pct": 20,
+        "emi_to_income_cap_pct": 40
+      },
+      "explained_terms": [
+        { "term": "EMI", "explanation": "Equated Monthly Installment — the fixed amount you'd pay the bank each month. Yours would be about ₹32,500." },
+        { "term": "Down payment", "explanation": "The upfront chunk you pay yourself (here ~20%). On a ₹42L home that's about ₹8.4L." },
+        { "term": "Tenure", "explanation": "How many years you take to repay the loan. A longer tenure (here 20 years) means smaller monthly EMIs." },
+        { "term": "Pre-approval", "explanation": "A bank's early estimate of how much it will lend you, before you pick a home." }
+      ],
+      "next_steps": [
+        "Keep renting and aim to save ~₹3L more over the next 12–18 months.",
+        "Park the down-payment savings in a low-risk option so it's ready when you are.",
+        "In ~12 months, get a loan pre-approval to confirm your real budget.",
+        "Re-run haus once your savings cross ₹10L to see if the verdict flips to 'buy'."
+      ]
+    },
+    "feedback": { "helped": true }
+  }
+}
