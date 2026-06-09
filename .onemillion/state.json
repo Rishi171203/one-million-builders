@@ -1,11 +1,11 @@
 {
   "course": "OneMillion Builder",
-  "current_day": 3,
-  "current_phase": "spec",
+  "current_day": 4,
+  "current_phase": "design",
   "next_agent": "design",
   "product_dir": "my-onemillion-build",
-  "status": "day_3_spec_validated",
-  "last_verified_day": 2,
+  "status": "day_3_complete",
+  "last_verified_day": 3,
   "spec_validation": "passed — refined-prd.md is a complete, non-drifting, buildable MVP spec (validated 2026-06-09)",
   "product": {
     "builder_name": "Rishi",
@@ -13,7 +13,7 @@
     "target_user": "First-time homebuyers aged 22-32, young working professionals; v1 launch market narrowed to Bangalore (global is long-term vision)"
   },
   "current_blocker": "None",
-  "next_smallest_action": "Open Day 3 — Lock The Spec (course/days/day-03-spec/learn.md)",
+  "next_smallest_action": "Open Day 4 — Design The Product (course/days/day-04-design/learn.md)",
   "preflight": {
     "canonical_landing_page": "https://github.com/siddsdixit/one-million-builders/tree/main/course",
     "upstream_repo": "siddsdixit/one-million-builders",
