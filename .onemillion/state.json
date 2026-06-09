@@ -4,7 +4,7 @@
   "current_phase": "build",
   "next_agent": "build",
   "product_dir": "my-onemillion-build",
-  "status": "day_5_complete_building_sprint_1",
+  "status": "building — Sprint 1 (global advisor) + Sprint 2 (Supabase auth) + Sprint 3a (roles+routing) DONE",
   "last_verified_day": 5,
   "spec_validation": "passed — refined-prd.md is a complete, non-drifting, buildable MVP spec (validated 2026-06-09)",
   "architecture": "Next.js + MUI + Framer Motion frontend; Supabase (Postgres + Auth, email/password + Google) DB+auth; Vercel global deploy. Single-user ownership, no RBAC, RLS on user data. Global multi-currency (India, USA, Germany, UK, UAE). Plan in architecture.md + 5 sprint briefs in sprints/. Day 4 design done (artifacts + working app built); Day 5 architecture done 2026-06-10.",
@@ -14,7 +14,7 @@
     "target_user": "First-time homebuyers; GLOBAL multi-currency product (launch markets: India, USA, Germany, UK, UAE). Scope widened from Bangalore-only per CEO direction 2026-06-10."
   },
   "current_blocker": "None",
-  "next_smallest_action": "Build Sprint 1 — global multi-currency advisor + landing (sprints/sprint-1-advisor-global.md)",
+  "next_smallest_action": "RESUME: (1) confirm the profiles SQL (haus/supabase/0001_profiles.sql) was run in Supabase + make Rishi's account admin; (2) test owner->/owner & admin->/admin routing; (3) then build next chosen feature: save advice+history, OR homeowner tools, OR design polish. Dev server: cd my-onemillion-build/haus && npm run dev (localhost:3000).",
   "preflight": {
     "canonical_landing_page": "https://github.com/siddsdixit/one-million-builders/tree/main/course",
     "upstream_repo": "siddsdixit/one-million-builders",
