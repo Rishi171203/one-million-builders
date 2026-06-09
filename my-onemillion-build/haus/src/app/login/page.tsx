@@ -16,6 +16,8 @@ import {
   Alert,
   CircularProgress,
   Stack,
+  ToggleButtonGroup,
+  ToggleButton,
 } from "@mui/material";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import GoogleIcon from "@mui/icons-material/Google";
@@ -24,7 +26,8 @@ import { createClient } from "@/lib/supabase/client";
 export default function LoginPage() {
   const [supabase] = useState(() => createClient());
   const router = useRouter();
-  const [tab, setTab] = useState(0); // 0 = login, 1 = register
+  const [tab, setTab] = useState(1); // 0 = login, 1 = register (register-first)
+  const [role, setRole] = useState<"buyer" | "owner">("buyer");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,17 +42,30 @@ export default function LoginPage() {
       return;
     }
     setLoading(true);
+
     if (tab === 0) {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       setLoading(false);
       if (error) setError(error.message);
-      else router.push("/");
+      else router.push("/dashboard");
     } else {
-      const { data, error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { role }, emailRedirectTo: `${window.location.origin}/auth/callback` },
+      });
       setLoading(false);
-      if (error) setError(error.message);
-      else if (data.session) router.push("/"); // email confirmation disabled → logged in
-      else setInfo("Account created! Check your email to confirm, then log in.");
+      if (error) {
+        if (/already|registered|exists/i.test(error.message)) {
+          setError("You already have an account — please log in.");
+          setTab(0);
+        } else setError(error.message);
+      } else if (data.session) {
+        router.push("/dashboard"); // email confirmation disabled → logged in
+      } else {
+        setInfo("Account created! Check your email to confirm, then log in.");
+        setTab(0);
+      }
     }
   }
 
@@ -80,7 +96,7 @@ export default function LoginPage() {
           {tab === 0 ? "Welcome back" : "Create your haus account"}
         </Typography>
         <Typography color="text.secondary" sx={{ mb: 2 }}>
-          {tab === 0 ? "Log in to see your saved advice." : "Save your results and revisit them anytime."}
+          {tab === 0 ? "Log in to your dashboard." : "Tell us who you are to get the right tools."}
         </Typography>
 
         <Tabs value={tab} onChange={(_, v) => { setTab(v); setError(null); setInfo(null); }} sx={{ mb: 3 }}>
@@ -91,6 +107,23 @@ export default function LoginPage() {
         <Stack spacing={2}>
           {error && <Alert severity="error">{error}</Alert>}
           {info && <Alert severity="success">{info}</Alert>}
+
+          {tab === 1 && (
+            <Box>
+              <Typography variant="body2" sx={{ mb: 1, fontWeight: 600 }}>I am a…</Typography>
+              <ToggleButtonGroup
+                exclusive
+                value={role}
+                onChange={(_, v) => v && setRole(v)}
+                color="primary"
+                fullWidth
+              >
+                <ToggleButton value="buyer" sx={{ py: 1.2, fontWeight: 600 }}>🏠&nbsp; Homebuyer</ToggleButton>
+                <ToggleButton value="owner" sx={{ py: 1.2, fontWeight: 600 }}>🔑&nbsp; Homeowner</ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
+          )}
+
           <TextField label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} fullWidth autoComplete="email" />
           <TextField label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} fullWidth autoComplete={tab === 0 ? "current-password" : "new-password"} helperText="At least 6 characters" />
           <Button variant="contained" size="large" onClick={handleEmail} disabled={loading} sx={{ py: 1.4 }}>

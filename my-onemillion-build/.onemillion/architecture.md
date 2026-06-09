@@ -30,9 +30,16 @@ no organizations, no shared data. (Not a company/clinic/agency product → multi
 unnecessary.)
 
 ## 5. RBAC Model
-**No RBAC for MVP.** Two implicit roles only: anonymous visitor (can use the advisor) and
-authenticated user (can save/view their own data). No admin UI yet. Revisit if/when an
-internal admin dashboard is needed.
+**Roles added (revised 2026-06-10 per founder direction).** Three roles, stored on
+`profiles.role`:
+- **buyer** (Homebuyer) — default; advisor + saved advice; routed to `/dashboard`.
+- **owner** (Homeowner) — owner tools (prepay/refinance, equity tracker, sell-vs-rent); `/owner`.
+- **admin** (Builder = Rishi) — product analytics dashboard; `/admin`.
+Role is chosen at registration (buyer/owner) via signup metadata → DB trigger writes it to
+`profiles`. **admin is NEVER self-selectable** — it is assigned manually via SQL to a specific
+account (security: prevents anyone granting themselves admin). Server pages read the role and
+redirect to the correct dashboard; admin/owner pages reject mismatched roles. Going forward,
+new account features live behind login.
 
 ## 6. Auth Model
 - **Supabase Auth.** Methods: **email/password** + **Google OAuth** (one-click).

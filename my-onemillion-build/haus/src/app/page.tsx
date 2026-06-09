@@ -161,9 +161,10 @@ export default function Home() {
           <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
             {user ? (
               <>
-                <Typography variant="body2" color="text.secondary" sx={{ display: { xs: "none", sm: "block" }, maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <Typography variant="body2" color="text.secondary" sx={{ display: { xs: "none", sm: "block" }, maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {user.email}
                 </Typography>
+                <Button variant="contained" size="small" onClick={() => router.push("/dashboard")}>Dashboard</Button>
                 <Button variant="outlined" size="small" onClick={logout}>Log out</Button>
               </>
             ) : (
