@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import { Container, Box, Typography, Paper, Button, Stack } from "@mui/material";
+import { Container, Box, Typography, Paper, Button } from "@mui/material";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import { createClient } from "@/lib/supabase/server";
 import DashboardHeader from "@/components/DashboardHeader";
@@ -30,7 +29,7 @@ export default async function Dashboard() {
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
               Run the advisor to see what you can afford and whether to buy now.
             </Typography>
-            <Button component={Link} href="/" variant="contained" endIcon={<ArrowForwardRoundedIcon />}>
+            <Button href="/" variant="contained" endIcon={<ArrowForwardRoundedIcon />}>
               Open the advisor
             </Button>
           </Paper>
