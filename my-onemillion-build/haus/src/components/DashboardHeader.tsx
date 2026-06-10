@@ -52,7 +52,13 @@ export default function DashboardHeader({ email, role }: { email: string; role: 
           {role === "owner" && (
             <Button component={Link} href="/owner" variant="text" size="small" sx={{ textTransform: "none", mr: 0.5 }}>My tools</Button>
           )}
-          <Typography variant="body2" color="text.secondary" sx={{ display: { xs: "none", md: "block" }, maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <Typography
+            component={Link}
+            href="/profile"
+            variant="body2"
+            color="text.secondary"
+            sx={{ display: { xs: "none", md: "block" }, maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", "&:hover": { color: "primary.main", textDecoration: "underline" } }}
+          >
             {email}
           </Typography>
           <ThemeToggle />
