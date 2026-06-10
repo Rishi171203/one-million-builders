@@ -23,6 +23,7 @@ import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import GoogleIcon from "@mui/icons-material/Google";
 import { createClient } from "@/lib/supabase/client";
 import ThemeToggle from "@/components/ThemeToggle";
+import { HeroHouse } from "@/components/art/HausArt";
 
 export default function LoginPage() {
   const [supabase] = useState(() => createClient());
@@ -83,6 +84,9 @@ export default function LoginPage() {
     <Container maxWidth="sm" sx={{ minHeight: "100dvh", display: "flex", flexDirection: "column", justifyContent: "center", py: 6 }}>
       <Box sx={{ position: "fixed", top: 16, right: 16, zIndex: 10 }}>
         <ThemeToggle />
+      </Box>
+      <Box sx={{ maxWidth: 200, mx: "auto", mb: 0.5 }}>
+        <HeroHouse />
       </Box>
       <Box sx={{ textAlign: "center", mb: 3 }}>
         <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>

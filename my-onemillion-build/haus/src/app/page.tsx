@@ -32,6 +32,7 @@ import { MARKETS, getMarket, DEFAULT_MARKET, fmtCompact, fmtFull, type Market } 
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import ThemeToggle from "@/components/ThemeToggle";
+import { HeroHouse, FeatureArt } from "@/components/art/HausArt";
 
 const MotionDiv = motion.div;
 
@@ -271,6 +272,9 @@ export default function Home() {
                 <Chip key={m.code} label={`${m.flag} ${m.name}`} variant="outlined" size="small" sx={{ fontWeight: 500 }} />
               ))}
             </Stack>
+            <Box sx={{ mt: { xs: 5, md: 7 } }}>
+              <HeroHouse />
+            </Box>
           </MotionDiv>
         </Container>
       </Box>
@@ -278,11 +282,11 @@ export default function Home() {
       {/* Value props */}
       <Container maxWidth="md" sx={{ pb: { xs: 4, md: 6 } }}>
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(3,1fr)" }, gap: 2.5 }}>
-          {[
-            { t: "Clear verdict", d: "Buy now or keep renting — a straight answer, not a sales pitch." },
-            { t: "Plain language", d: "Every term explained. No confusing jargon, ever." },
-            { t: "Built for your country", d: "Local currency, interest rates, and down-payment norms." },
-          ].map((v) => (
+          {([
+            { t: "Clear verdict", d: "Buy now or keep renting — a straight answer, not a sales pitch.", kind: "verdict" },
+            { t: "Plain language", d: "Every term explained. No confusing jargon, ever.", kind: "language" },
+            { t: "Built for your country", d: "Local currency, interest rates, and down-payment norms.", kind: "country" },
+          ] as const).map((v) => (
             <Paper
               key={v.t}
               elevation={0}
@@ -295,6 +299,7 @@ export default function Home() {
                 "&:hover": { transform: "translateY(-4px)", boxShadow: "0 14px 34px rgba(79,70,229,0.14)", borderColor: "primary.main" },
               }}
             >
+              <Box sx={{ mb: 1.5 }}><FeatureArt kind={v.kind} /></Box>
               <Typography variant="h6" sx={{ mb: 0.5 }}>{v.t}</Typography>
               <Typography variant="body2" color="text.secondary">{v.d}</Typography>
             </Paper>

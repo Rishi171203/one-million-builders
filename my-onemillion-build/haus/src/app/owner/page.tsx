@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
-import { Container, Typography, Paper } from "@mui/material";
+import { Container, Typography, Paper, Box, Stack } from "@mui/material";
 import { createClient } from "@/lib/supabase/server";
 import DashboardHeader from "@/components/DashboardHeader";
 import OwnerTools from "./OwnerTools";
+import { HeroHouse } from "@/components/art/HausArt";
 
 export default async function OwnerDashboard() {
   const supabase = await createClient();
@@ -19,8 +20,15 @@ export default async function OwnerDashboard() {
     <>
       <DashboardHeader email={user.email ?? ""} role={role} />
       <Container maxWidth="md" sx={{ py: { xs: 4, md: 6 } }}>
-        <Typography variant="h3" sx={{ mb: 1 }}>Your home, optimised 🔑</Typography>
-        <Typography color="text.secondary" sx={{ mb: 4 }}>Homeowner tools to make the most of what you already own.</Typography>
+        <Stack direction="row" spacing={2} sx={{ alignItems: "center", justifyContent: "space-between", mb: 4 }}>
+          <Box>
+            <Typography variant="h3" sx={{ mb: 1 }}>Your home, optimised 🔑</Typography>
+            <Typography color="text.secondary">Homeowner tools to make the most of what you already own.</Typography>
+          </Box>
+          <Box sx={{ display: { xs: "none", sm: "block" }, width: 150, flexShrink: 0 }}>
+            <HeroHouse />
+          </Box>
+        </Stack>
 
         <Paper elevation={0} sx={{ p: { xs: 2.5, md: 4 }, borderRadius: 4, border: "1px solid", borderColor: "divider" }}>
           <OwnerTools />

@@ -3,6 +3,7 @@ import { Container, Box, Typography, Paper, Chip, Stack } from "@mui/material";
 import { createClient } from "@/lib/supabase/server";
 import DashboardHeader from "@/components/DashboardHeader";
 import { getMarket, fmtCompact } from "@/lib/markets";
+import { EmptyStateArt } from "@/components/art/HausArt";
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
@@ -67,9 +68,12 @@ export default async function AdminDashboard() {
         <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider" }}>
           <Typography variant="h6" sx={{ mb: 2 }}>Recent activity</Typography>
           {recentItems.length === 0 ? (
-            <Typography variant="body2" color="text.secondary">
-              No saved assessments yet. They’ll appear here as users save their verdicts.
-            </Typography>
+            <Box sx={{ textAlign: "center", py: 2 }}>
+              <EmptyStateArt />
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                No saved assessments yet. They’ll appear here as users save their verdicts.
+              </Typography>
+            </Box>
           ) : (
             <Stack spacing={1.5}>
               {recentItems.map((a, i) => {

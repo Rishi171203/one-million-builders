@@ -4,6 +4,7 @@ import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import { createClient } from "@/lib/supabase/server";
 import DashboardHeader from "@/components/DashboardHeader";
 import { getMarket, fmtCompact } from "@/lib/markets";
+import { EmptyStateArt, FeatureArt } from "@/components/art/HausArt";
 
 export default async function Dashboard() {
   const supabase = await createClient();
@@ -43,6 +44,7 @@ export default async function Dashboard() {
             "&:hover": { transform: "translateY(-4px)", boxShadow: "0 14px 34px rgba(79,70,229,0.14)", borderColor: "primary.main" },
           }}
         >
+          <Box sx={{ mb: 1.5 }}><FeatureArt kind="verdict" /></Box>
           <Typography variant="h6" sx={{ mb: 1 }}>Get advice</Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
             Run the advisor to see what you can afford and whether to buy now.
@@ -61,7 +63,8 @@ export default async function Dashboard() {
 
         {items.length === 0 ? (
           <Paper elevation={0} sx={{ p: 4, borderRadius: 4, border: "1px dashed", borderColor: "divider", textAlign: "center" }}>
-            <Typography color="text.secondary">
+            <EmptyStateArt />
+            <Typography color="text.secondary" sx={{ mt: 1 }}>
               Run the advisor and tap <b>“Save this result”</b> to keep it here.
             </Typography>
           </Paper>
