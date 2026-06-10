@@ -22,7 +22,7 @@ export default async function Dashboard() {
 
   const { data: saved } = await supabase
     .from("assessments")
-    .select("id, market_code, status, price_min, price_max, emi, created_at")
+    .select("id, market_code, status, price_min, price_max, emi, created_at, inputs")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
   const items = saved ?? [];
@@ -85,6 +85,17 @@ export default async function Dashboard() {
             {items.map((a, i) => {
               const m = getMarket(a.market_code);
               const ready = a.status === "ready";
+              const inp = a.inputs as { income?: number; savings?: number; rent?: number; age?: number; goal?: string } | null;
+              const editHref = inp
+                ? `/?${new URLSearchParams({
+                    market: a.market_code,
+                    income: String(inp.income ?? ""),
+                    savings: String(inp.savings ?? ""),
+                    rent: String(inp.rent ?? ""),
+                    age: String(inp.age ?? ""),
+                    goal: String(inp.goal ?? ""),
+                  }).toString()}`
+                : null;
               return (
                 <Paper
                   key={a.id}
@@ -115,6 +126,13 @@ export default async function Dashboard() {
                       sx={{ fontWeight: 700, color: "#fff", bgcolor: ready ? "#16A34A" : "#D97706", flexShrink: 0 }}
                     />
                   </Stack>
+                  {editHref && (
+                    <Box sx={{ mt: 2, textAlign: "right" }}>
+                      <Button size="small" variant="text" href={editHref} endIcon={<ArrowForwardRoundedIcon />}>
+                        Edit &amp; re-run
+                      </Button>
+                    </Box>
+                  )}
                 </Paper>
               );
             })}

@@ -98,6 +98,27 @@ export default function Home() {
     setUser(null);
   }
 
+  // Prefill from URL (e.g. "Edit & re-run" from the dashboard, or a shared link).
+  // Read window.location directly to avoid the useSearchParams Suspense rule.
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    if (!sp.get("income") && !sp.get("market")) return;
+    const code = sp.get("market");
+    if (code) setMarket(getMarket(code));
+    const apply = (key: string, setter: (v: string) => void) => {
+      const v = sp.get(key);
+      if (v !== null) setter(v);
+    };
+    apply("income", setIncome);
+    apply("savings", setSavings);
+    apply("rent", setRent);
+    apply("age", setAge);
+    apply("goal", setGoal);
+    window.setTimeout(() => advisorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 300);
+    showSnack("Loaded your saved details — edit and re-run ✏️");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function changeMarket(code: string) {
     const m = getMarket(code);
     setMarket(m);
