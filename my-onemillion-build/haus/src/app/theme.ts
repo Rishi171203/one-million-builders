@@ -17,9 +17,27 @@ const shared: ThemeOptions = {
     button: { fontFamily: "var(--font-jakarta), sans-serif", fontWeight: 600, textTransform: "none" },
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: (theme: Theme) => ({
+        body: {
+          colorScheme: theme.palette.mode,
+          backgroundAttachment: "fixed",
+          background:
+            theme.palette.mode === "light"
+              ? "radial-gradient(1100px 520px at 100% -10%, #eef2ff 0%, rgba(238,242,255,0) 60%), radial-gradient(820px 460px at -10% 8%, #f5f3ff 0%, rgba(245,243,255,0) 55%), #f8fafc"
+              : "radial-gradient(1100px 520px at 100% -10%, rgba(79,70,229,0.14) 0%, rgba(79,70,229,0) 60%), radial-gradient(820px 460px at -10% 8%, rgba(147,51,234,0.12) 0%, rgba(147,51,234,0) 55%), #0A0E1A",
+        },
+      }),
+    },
     MuiButton: {
       styleOverrides: {
-        root: { borderRadius: 12, padding: "12px 22px", fontSize: "0.95rem" },
+        root: {
+          borderRadius: 12,
+          padding: "12px 22px",
+          fontSize: "0.95rem",
+          transition: "transform 150ms ease, box-shadow 200ms ease, background-color 200ms ease",
+          "&:active": { transform: "scale(0.97)" },
+        },
       },
     },
     MuiPaper: { styleOverrides: { root: { backgroundImage: "none" } } },

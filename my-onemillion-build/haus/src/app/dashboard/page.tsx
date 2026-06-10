@@ -31,7 +31,18 @@ export default async function Dashboard() {
         <Typography variant="h3" sx={{ mb: 1 }}>Welcome back 👋</Typography>
         <Typography color="text.secondary" sx={{ mb: 4 }}>Your homebuyer dashboard.</Typography>
 
-        <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider", mb: 4 }}>
+        <Paper
+          elevation={0}
+          sx={{
+            p: 3,
+            borderRadius: 4,
+            border: "1px solid",
+            borderColor: "divider",
+            mb: 4,
+            transition: "transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease",
+            "&:hover": { transform: "translateY(-4px)", boxShadow: "0 14px 34px rgba(79,70,229,0.14)", borderColor: "primary.main" },
+          }}
+        >
           <Typography variant="h6" sx={{ mb: 1 }}>Get advice</Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
             Run the advisor to see what you can afford and whether to buy now.
@@ -56,11 +67,24 @@ export default async function Dashboard() {
           </Paper>
         ) : (
           <Stack spacing={2}>
-            {items.map((a) => {
+            {items.map((a, i) => {
               const m = getMarket(a.market_code);
               const ready = a.status === "ready";
               return (
-                <Paper key={a.id} elevation={0} sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider" }}>
+                <Paper
+                  key={a.id}
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    borderRadius: 4,
+                    border: "1px solid",
+                    borderColor: "divider",
+                    animation: "hausFadeUp 420ms ease both",
+                    animationDelay: `${i * 60}ms`,
+                    transition: "transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease",
+                    "&:hover": { transform: "translateY(-3px)", boxShadow: "0 12px 30px rgba(79,70,229,0.12)", borderColor: "primary.main" },
+                  }}
+                >
                   <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} sx={{ justifyContent: "space-between", alignItems: { sm: "center" } }}>
                     <Box>
                       <Typography variant="h6" sx={{ mb: 0.5 }}>{m.flag}&nbsp;&nbsp;{m.name}</Typography>

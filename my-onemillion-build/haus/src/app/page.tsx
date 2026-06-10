@@ -420,7 +420,7 @@ export default function Home() {
 
                 <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5, mt: 2.5 }}>
                   <MotionDiv variants={item}>
-                    <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider", height: "100%" }}>
+                    <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider", height: "100%", transition: "transform 220ms ease, box-shadow 220ms ease", "&:hover": { transform: "translateY(-4px)", boxShadow: "0 14px 34px rgba(79,70,229,0.14)" } }}>
                       <Typography variant="overline" color="text.secondary">You can afford</Typography>
                       <Typography variant="h3" sx={{ my: 0.5 }}>
                         <AnimatedNumber value={result.priceMin} format={(n) => fmtCompact(n, market)} />
@@ -433,7 +433,7 @@ export default function Home() {
                     </Paper>
                   </MotionDiv>
                   <MotionDiv variants={item}>
-                    <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider", height: "100%" }}>
+                    <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider", height: "100%", transition: "transform 220ms ease, box-shadow 220ms ease", "&:hover": { transform: "translateY(-4px)", boxShadow: "0 14px 34px rgba(79,70,229,0.14)" } }}>
                       <Typography variant="overline" color="text.secondary">Estimated EMI</Typography>
                       <Typography variant="h3" sx={{ my: 0.5 }}>
                         <AnimatedNumber value={result.emi} format={(n) => fmtFull(n, market)} />

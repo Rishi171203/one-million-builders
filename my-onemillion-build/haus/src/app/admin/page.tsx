@@ -43,8 +43,21 @@ export default async function AdminDashboard() {
         <Typography color="text.secondary" sx={{ mb: 4 }}>Your product at a glance.</Typography>
 
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2,1fr)", md: "repeat(4,1fr)" }, gap: 2.5, mb: 3 }}>
-          {stats.map((s) => (
-            <Paper key={s.label} elevation={0} sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider" }}>
+          {stats.map((s, i) => (
+            <Paper
+              key={s.label}
+              elevation={0}
+              sx={{
+                p: 3,
+                borderRadius: 4,
+                border: "1px solid",
+                borderColor: "divider",
+                animation: "hausFadeUp 420ms ease both",
+                animationDelay: `${i * 70}ms`,
+                transition: "transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease",
+                "&:hover": { transform: "translateY(-4px)", boxShadow: "0 14px 34px rgba(79,70,229,0.14)", borderColor: "primary.main" },
+              }}
+            >
               <Typography variant="overline" color="text.secondary">{s.label}</Typography>
               <Typography variant="h3">{s.value}</Typography>
             </Paper>
@@ -59,11 +72,11 @@ export default async function AdminDashboard() {
             </Typography>
           ) : (
             <Stack spacing={1.5}>
-              {recentItems.map((a) => {
+              {recentItems.map((a, i) => {
                 const m = getMarket(a.market_code);
                 const ready = a.status === "ready";
                 return (
-                  <Stack key={a.id} direction="row" spacing={1.5} sx={{ alignItems: "center", justifyContent: "space-between", py: 1, borderBottom: "1px solid", borderColor: "divider" }}>
+                  <Stack key={a.id} direction="row" spacing={1.5} sx={{ alignItems: "center", justifyContent: "space-between", py: 1, borderBottom: "1px solid", borderColor: "divider", animation: "hausFadeUp 360ms ease both", animationDelay: `${i * 50}ms` }}>
                     <Box>
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>{m.flag}&nbsp; {m.name}</Typography>
                       <Typography variant="caption" color="text.secondary">

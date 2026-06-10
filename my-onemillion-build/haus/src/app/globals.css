@@ -1,7 +1,3 @@
-:root {
-  color-scheme: light;
-}
-
 * {
   box-sizing: border-box;
 }
@@ -15,15 +11,33 @@ body {
 }
 
 body {
-  min-height: 100vh;
-  background:
-    radial-gradient(1100px 520px at 100% -10%, #eef2ff 0%, rgba(238, 242, 255, 0) 60%),
-    radial-gradient(820px 460px at -10% 8%, #f5f3ff 0%, rgba(245, 243, 255, 0) 55%),
-    #f8fafc;
-  background-attachment: fixed;
+  min-height: 100dvh;
+  /* Background is driven by the MUI theme (MuiCssBaseline) so it adapts to dark mode. */
 }
 
 a {
   color: inherit;
   text-decoration: none;
+}
+
+/* Reusable entrance animation for server-rendered lists (use via sx animation + per-item delay). */
+@keyframes hausFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }
