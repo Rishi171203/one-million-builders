@@ -41,3 +41,14 @@ a {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* Print / "Save as PDF": hide chrome and interactive bits so the verdict
+   prints as a clean one-page summary. Mark anything to omit with .haus-noprint. */
+@media print {
+  .haus-noprint {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+  }
+}

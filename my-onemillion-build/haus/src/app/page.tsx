@@ -26,6 +26,8 @@ import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import PublicRoundedIcon from "@mui/icons-material/PublicRounded";
 import BookmarkAddRoundedIcon from "@mui/icons-material/BookmarkAddRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
+import PictureAsPdfRoundedIcon from "@mui/icons-material/PictureAsPdfRounded";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { computeResult, type Result } from "@/lib/haus";
@@ -209,6 +211,23 @@ export default function Home() {
     }
   }
 
+  // Build a shareable link that reopens the advisor with these exact numbers.
+  function shareUrl() {
+    const params = new URLSearchParams({ market: market.code, income, savings, rent, age, goal });
+    return `${window.location.origin}/?${params.toString()}`;
+  }
+  async function copyShareLink() {
+    try {
+      await navigator.clipboard.writeText(shareUrl());
+      showSnack("Share link copied 🔗");
+    } catch {
+      showSnack("Couldn't copy the link — please try again", "error");
+    }
+  }
+  function printResult() {
+    window.print();
+  }
+
   const ready = result?.status === "ready";
   const accent = ready ? "#16A34A" : "#D97706";
   const cur = market.currencySymbol;
@@ -219,6 +238,7 @@ export default function Home() {
       <AppBar
         position="sticky"
         elevation={0}
+        className="haus-noprint"
         sx={{
           bgcolor: (t) => (t.palette.mode === "light" ? "rgba(255,255,255,0.72)" : "rgba(11,16,32,0.72)"),
           backdropFilter: "blur(12px)",
@@ -266,7 +286,7 @@ export default function Home() {
       </AppBar>
 
       {/* Hero */}
-      <Box sx={{ position: "relative", overflow: "hidden", textAlign: "center", px: 2, pt: { xs: 7, md: 11 }, pb: { xs: 5, md: 7 } }}>
+      <Box className="haus-noprint" sx={{ position: "relative", overflow: "hidden", textAlign: "center", px: 2, pt: { xs: 7, md: 11 }, pb: { xs: 5, md: 7 } }}>
         {/* Animated gradient orbs drifting behind the headline */}
         <MotionDiv
           aria-hidden
@@ -435,7 +455,7 @@ export default function Home() {
       </Box>
 
       {/* Value props */}
-      <Container maxWidth="md" sx={{ pb: { xs: 4, md: 6 } }}>
+      <Container className="haus-noprint" maxWidth="md" sx={{ pb: { xs: 4, md: 6 } }}>
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(3,1fr)" }, gap: 2.5 }}>
           {([
             { t: "Clear verdict", d: "Buy now or keep renting — a straight answer, not a sales pitch.", kind: "verdict" },
@@ -463,11 +483,11 @@ export default function Home() {
       </Container>
 
       {/* Real homes gallery */}
-      <RealHomesGallery />
+      <Box className="haus-noprint"><RealHomesGallery /></Box>
 
       {/* Advisor */}
       <Container maxWidth="md" sx={{ pb: 12 }}>
-        <Box ref={advisorRef} sx={{ scrollMarginTop: 80, pt: 4 }}>
+        <Box ref={advisorRef} className="haus-noprint" sx={{ scrollMarginTop: 80, pt: 4 }}>
           <MotionDiv initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
             <Paper elevation={0} sx={{ p: { xs: 3, md: 4 }, borderRadius: 4, border: "1px solid", borderColor: "divider" }}>
               <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ justifyContent: "space-between", alignItems: { sm: "center" }, mb: 1 }}>
@@ -685,9 +705,15 @@ export default function Home() {
                       not financial advice.
                     </Typography>
                   </Box>
-                  <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} sx={{ mt: 2.5 }}>
+                  <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} sx={{ mt: 2.5, flexWrap: "wrap" }} useFlexGap className="haus-noprint">
                     <Button variant="contained" color="success" startIcon={<FavoriteRoundedIcon />} onClick={() => showSnack("Glad it helped 💙")}>
                       This helped me
+                    </Button>
+                    <Button variant="outlined" startIcon={<IosShareRoundedIcon />} onClick={copyShareLink}>
+                      Copy link
+                    </Button>
+                    <Button variant="outlined" startIcon={<PictureAsPdfRoundedIcon />} onClick={printResult}>
+                      Save as PDF
                     </Button>
                     {user ? (
                       <Button
