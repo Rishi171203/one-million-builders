@@ -23,7 +23,8 @@ import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import GoogleIcon from "@mui/icons-material/Google";
 import { createClient } from "@/lib/supabase/client";
 import ThemeToggle from "@/components/ThemeToggle";
-import { HeroHouse } from "@/components/art/HausArt";
+import PhotoBanner from "@/components/PhotoBanner";
+import { INTERIOR_PHOTO } from "@/lib/photos";
 
 export default function LoginPage() {
   const [supabase] = useState(() => createClient());
@@ -85,8 +86,14 @@ export default function LoginPage() {
       <Box sx={{ position: "fixed", top: 16, right: 16, zIndex: 10 }}>
         <ThemeToggle />
       </Box>
-      <Box sx={{ maxWidth: 200, mx: "auto", mb: 0.5 }}>
-        <HeroHouse />
+      <Box sx={{ mb: 2.5 }}>
+        <PhotoBanner
+          photo={INTERIOR_PHOTO}
+          height={{ xs: 130, md: 150 }}
+          title="Your home journey starts here"
+          subtitle="Unbiased, plain-language advice — in your currency"
+          priority
+        />
       </Box>
       <Box sx={{ textAlign: "center", mb: 3 }}>
         <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>

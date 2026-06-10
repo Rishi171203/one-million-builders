@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import DashboardHeader from "@/components/DashboardHeader";
 import { getMarket, fmtCompact } from "@/lib/markets";
 import { EmptyStateArt, FeatureArt } from "@/components/art/HausArt";
+import PhotoBanner from "@/components/PhotoBanner";
+import { HERO_PHOTO } from "@/lib/photos";
 
 export default async function Dashboard() {
   const supabase = await createClient();
@@ -30,7 +32,17 @@ export default async function Dashboard() {
       <DashboardHeader email={user.email ?? ""} role={role} />
       <Container maxWidth="md" sx={{ py: { xs: 4, md: 6 } }}>
         <Typography variant="h3" sx={{ mb: 1 }}>Welcome back 👋</Typography>
-        <Typography color="text.secondary" sx={{ mb: 4 }}>Your homebuyer dashboard.</Typography>
+        <Typography color="text.secondary" sx={{ mb: 3 }}>Your homebuyer dashboard.</Typography>
+
+        <Box sx={{ mb: 4 }}>
+          <PhotoBanner
+            photo={HERO_PHOTO}
+            height={{ xs: 150, md: 190 }}
+            title="One step closer to your own front door"
+            subtitle="Run the advisor whenever your numbers change"
+            priority
+          />
+        </Box>
 
         <Paper
           elevation={0}

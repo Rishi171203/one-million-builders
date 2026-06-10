@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import DashboardHeader from "@/components/DashboardHeader";
 import OwnerTools from "./OwnerTools";
 import { HeroHouse } from "@/components/art/HausArt";
+import PhotoBanner from "@/components/PhotoBanner";
+import { HOME_GALLERY } from "@/lib/photos";
 
 export default async function OwnerDashboard() {
   const supabase = await createClient();
@@ -29,6 +31,16 @@ export default async function OwnerDashboard() {
             <HeroHouse />
           </Box>
         </Stack>
+
+        <Box sx={{ mb: 4 }}>
+          <PhotoBanner
+            photo={HOME_GALLERY[1]}
+            height={{ xs: 150, md: 190 }}
+            title="Make the most of the home you own"
+            subtitle="Prepay, refinance, track equity, or weigh selling vs. renting"
+            priority
+          />
+        </Box>
 
         <Paper elevation={0} sx={{ p: { xs: 2.5, md: 4 }, borderRadius: 4, border: "1px solid", borderColor: "divider" }}>
           <OwnerTools />

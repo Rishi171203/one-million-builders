@@ -27,12 +27,15 @@ import PublicRoundedIcon from "@mui/icons-material/PublicRounded";
 import BookmarkAddRoundedIcon from "@mui/icons-material/BookmarkAddRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { computeResult, type Result } from "@/lib/haus";
 import { MARKETS, getMarket, DEFAULT_MARKET, fmtCompact, fmtFull, type Market } from "@/lib/markets";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import ThemeToggle from "@/components/ThemeToggle";
-import { HeroHouse, FeatureArt } from "@/components/art/HausArt";
+import { FeatureArt } from "@/components/art/HausArt";
+import RealHomesGallery from "@/components/RealHomesGallery";
+import { HERO_PHOTO, unsplashUrl } from "@/lib/photos";
 
 const MotionDiv = motion.div;
 
@@ -272,8 +275,116 @@ export default function Home() {
                 <Chip key={m.code} label={`${m.flag} ${m.name}`} variant="outlined" size="small" sx={{ fontWeight: 500 }} />
               ))}
             </Stack>
+            {/* Real-home hero photo with floating glass verdict + coin badge */}
             <Box sx={{ mt: { xs: 5, md: 7 } }}>
-              <HeroHouse />
+              <MotionDiv
+                initial={{ opacity: 0, scale: 0.96, y: 24 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                style={{ position: "relative", width: "100%", maxWidth: 760, margin: "0 auto" }}
+              >
+                <Box
+                  sx={{
+                    position: "relative",
+                    width: "100%",
+                    aspectRatio: { xs: "4 / 3", sm: "16 / 10" },
+                    borderRadius: 6,
+                    overflow: "hidden",
+                    border: "1px solid",
+                    borderColor: "divider",
+                    boxShadow: "0 24px 60px rgba(79,70,229,0.28)",
+                  }}
+                >
+                  <Image
+                    src={unsplashUrl(HERO_PHOTO.id, 1600)}
+                    alt={HERO_PHOTO.alt}
+                    fill
+                    sizes="(max-width: 900px) 100vw, 760px"
+                    loading="eager"
+                    fetchPriority="high"
+                    style={{ objectFit: "cover" }}
+                  />
+                  {/* legibility scrim */}
+                  <Box
+                    aria-hidden
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      background: "linear-gradient(to top, rgba(2,6,23,0.55), rgba(2,6,23,0.05) 55%, transparent)",
+                      pointerEvents: "none",
+                    }}
+                  />
+
+                  {/* Floating glass verdict card */}
+                  <MotionDiv
+                    initial={{ opacity: 0, y: 22 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.45, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                    style={{ position: "absolute", left: 16, bottom: 16, zIndex: 2 }}
+                  >
+                    <MotionDiv animate={{ y: [0, -8, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}>
+                      <Paper
+                        elevation={0}
+                        sx={{
+                          px: 2.25,
+                          py: 1.75,
+                          borderRadius: 3,
+                          maxWidth: 250,
+                          textAlign: "left",
+                          border: "1px solid",
+                          borderColor: (t) => (t.palette.mode === "light" ? "rgba(255,255,255,0.6)" : "rgba(148,163,184,0.3)"),
+                          bgcolor: (t) => (t.palette.mode === "light" ? "rgba(255,255,255,0.78)" : "rgba(15,23,42,0.72)"),
+                          backdropFilter: "blur(14px)",
+                          boxShadow: "0 18px 40px rgba(2,6,23,0.28)",
+                        }}
+                      >
+                        <Chip
+                          icon={<CheckRoundedIcon />}
+                          label="Ready to buy"
+                          size="small"
+                          sx={{ mb: 1, fontWeight: 700, color: "#fff", bgcolor: "#16A34A", "& .MuiChip-icon": { color: "#fff" } }}
+                        />
+                        <Typography sx={{ fontWeight: 800, fontSize: "1.15rem", lineHeight: 1.15 }}>
+                          You can afford ₹85L – ₹1.05Cr
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          A clear verdict in seconds — sample result
+                        </Typography>
+                      </Paper>
+                    </MotionDiv>
+                  </MotionDiv>
+
+                  {/* Floating multi-currency coin badge */}
+                  <MotionDiv
+                    initial={{ opacity: 0, scale: 0.6 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.6, type: "spring", stiffness: 200, damping: 14 }}
+                    style={{ position: "absolute", top: 16, right: 16, zIndex: 2 }}
+                  >
+                    <MotionDiv animate={{ y: [0, -10, 0] }} transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}>
+                      <Box
+                        aria-hidden
+                        sx={{
+                          width: 76,
+                          height: 76,
+                          borderRadius: "50%",
+                          display: "grid",
+                          placeItems: "center",
+                          background: "radial-gradient(circle at 35% 30%, #FDE68A, #D97706)",
+                          border: "2px solid #B45309",
+                          boxShadow: "0 12px 28px rgba(180,83,9,0.45)",
+                          color: "#7C2D12",
+                          fontWeight: 800,
+                          fontSize: "1.05rem",
+                          letterSpacing: "1px",
+                        }}
+                      >
+                        ₹$€
+                      </Box>
+                    </MotionDiv>
+                  </MotionDiv>
+                </Box>
+              </MotionDiv>
             </Box>
           </MotionDiv>
         </Container>
@@ -306,6 +417,9 @@ export default function Home() {
           ))}
         </Box>
       </Container>
+
+      {/* Real homes gallery */}
+      <RealHomesGallery />
 
       {/* Advisor */}
       <Container maxWidth="md" sx={{ pb: 12 }}>
