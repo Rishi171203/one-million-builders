@@ -75,6 +75,7 @@ export default function Home() {
   const [snackSeverity, setSnackSeverity] = useState<"success" | "error">("success");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [aiPowered, setAiPowered] = useState(false);
 
   const resultRef = useRef<HTMLDivElement>(null);
   const advisorRef = useRef<HTMLDivElement>(null);
@@ -116,21 +117,39 @@ export default function Home() {
     return Object.keys(e).length === 0;
   }
 
-  function onSubmit() {
+  async function onSubmit() {
     if (!validate()) return;
     setLoading(true);
     setResult(null);
     setOpenTerm(null);
     setSaved(false);
-    window.setTimeout(() => {
-      const r = computeResult(
-        { income: toNum(income), savings: toNum(savings), rent: toNum(rent), age: toNum(age), goal },
-        market
-      );
-      setResult(r);
-      setLoading(false);
-      window.setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
-    }, 900);
+    setAiPowered(false);
+
+    // Math is deterministic and instant — it's our source of truth + fallback.
+    const inputs = { income: toNum(income), savings: toNum(savings), rent: toNum(rent), age: toNum(age), goal };
+    const r = computeResult(inputs, market);
+
+    // Ask the server (Gemini) to write a warm, personalized verdict + steps.
+    // If it's unavailable, we silently keep the deterministic text.
+    try {
+      const res = await fetch("/api/advice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ marketCode: market.code, inputs }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (typeof data?.verdict === "string" && data.verdict.trim()) r.verdict = data.verdict;
+        if (Array.isArray(data?.nextSteps) && data.nextSteps.length) r.nextSteps = data.nextSteps;
+        setAiPowered(data?.source === "ai");
+      }
+    } catch {
+      // Network hiccup → keep the deterministic verdict. haus never breaks.
+    }
+
+    setResult(r);
+    setLoading(false);
+    window.setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
   }
 
   function showSnack(msg: string, severity: "success" | "error" = "success") {
@@ -527,7 +546,16 @@ export default function Home() {
                 <MotionDiv variants={item}>
                   <Paper elevation={0} sx={{ mt: 4, p: { xs: 3, md: 4 }, borderRadius: 4, border: "1px solid", borderColor: "divider", position: "relative", overflow: "hidden" }}>
                     <Box sx={{ position: "absolute", top: 0, left: 0, right: 0, height: 6, background: accent }} />
-                    <Chip label={result.chipLabel} sx={{ mt: 1, mb: 2, fontWeight: 700, color: "#fff", bgcolor: accent }} />
+                    <Stack direction="row" spacing={1} sx={{ mt: 1, mb: 2, flexWrap: "wrap" }} useFlexGap>
+                      <Chip label={result.chipLabel} sx={{ fontWeight: 700, color: "#fff", bgcolor: accent }} />
+                      {aiPowered && (
+                        <Chip
+                          icon={<AutoAwesomeRoundedIcon />}
+                          label="Personalized by AI"
+                          sx={{ fontWeight: 700, bgcolor: "rgba(99,102,241,0.12)", color: "primary.main", "& .MuiChip-icon": { color: "primary.main" } }}
+                        />
+                      )}
+                    </Stack>
                     <Typography variant="h4" sx={{ mb: 1.5 }}>
                       {ready ? "You're in a strong position to buy." : "Renting is the smarter move — for now."}
                     </Typography>
