@@ -41,8 +41,17 @@ export default function DashboardHeader({ email, role }: { email: string; role: 
           </Typography>
           <Chip label={roleLabel} size="small" sx={{ ml: 1, bgcolor: "primary.light", color: "primary.dark", fontWeight: 600 }} />
         </Stack>
-        <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
-          <Typography variant="body2" color="text.secondary" sx={{ display: { xs: "none", sm: "block" }, maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+          {role === "admin" && (
+            <Stack direction="row" spacing={0.5} sx={{ mr: 0.5 }}>
+              <Button component={Link} href="/admin" variant="text" size="small" sx={{ textTransform: "none" }}>Builder</Button>
+              <Button component={Link} href="/owner" variant="text" size="small" sx={{ textTransform: "none" }}>Homeowner tools</Button>
+            </Stack>
+          )}
+          {role === "owner" && (
+            <Button component={Link} href="/owner" variant="text" size="small" sx={{ textTransform: "none", mr: 0.5 }}>My tools</Button>
+          )}
+          <Typography variant="body2" color="text.secondary" sx={{ display: { xs: "none", md: "block" }, maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {email}
           </Typography>
           <Button variant="outlined" size="small" onClick={logout}>Log out</Button>
