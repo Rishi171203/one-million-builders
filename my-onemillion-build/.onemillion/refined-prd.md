@@ -17,6 +17,36 @@ Still deferred: AI advisor + document upload (course Days 11–12), live price/r
 lender integrations, savings-goal reminders. The Day 3 spec below remains the core advisory
 logic; this update widens reach and adds accounts/persistence around it.
 
+## Scope Update (Day 6, 2026-06-10) — keeping the PRD honest
+
+During the Build phase we added things that weren't in the Day 3 spec or the Day 5 update.
+Recording them here so the PRD matches reality, and **re-confirming the product's focus**.
+
+**PRIMARY FOCUS — unchanged:** haus is for **first-time homebuyers**. All core user stories,
+personas (Priya, Arjun, Rohan), and KPIs remain about people who do **not** yet own a home.
+The core advisor (affordability, EMI, buy-vs-rent verdict, jargon, next steps, "this helped me")
+is and stays the heart of the product.
+
+**Added during build (now IN SCOPE):**
+- **User roles + dashboards** — accounts can be a *Homebuyer*, *Homeowner*, or *Admin (Builder)*.
+  Role-based routing sends each to their own dashboard. (This supersedes the earlier "no RBAC"
+  note in `architecture.md`.)
+- **Save advice + history** — logged-in homebuyers can save a verdict; it appears as history on
+  their dashboard. Implemented via a Supabase `assessments` table with row-level security.
+- **Admin (Builder) dashboard** — internal view of live stats (user counts, saved assessments)
+  and recent activity, for the founder to review the product. Not a customer-facing feature.
+
+**SECONDARY / BONUS (Option B decision) — Homeowner tools:**
+- Tools for people who **already own** a home: prepay/refinance, equity tracker, sell-vs-rent-out.
+- **Explicitly a secondary add-on, NOT a second audience.** First-time buyers remain the sole
+  primary focus. Homeowner tools are a bonus for users who happen to already own, and a path to
+  re-engage buyers after they purchase. They must never pull product/marketing attention away
+  from the first-time-buyer core. If they ever compete for focus, they get cut or parked.
+
+**AI layer — still deferred (as planned):** Today the verdict/jargon/next-steps are produced by
+deterministic code (hence they repeat). Per the Day 3 spec (and Assumptions below), the **AI layer
+that writes personalised language arrives in course Days 11–12**; math stays as reliable code.
+
 ## Day 3 Locked Spec
 
 ### MVP Summary
