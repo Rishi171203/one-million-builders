@@ -37,6 +37,7 @@ import { FeatureArt } from "@/components/art/HausArt";
 import RealHomesGallery from "@/components/RealHomesGallery";
 import TypeOut from "@/components/TypeOut";
 import RentVsBuy from "@/components/RentVsBuy";
+import CompareScenarios from "@/components/CompareScenarios";
 import { HERO_PHOTO, unsplashUrl } from "@/lib/photos";
 
 const MotionDiv = motion.div;
@@ -647,6 +648,10 @@ export default function Home() {
 
                 <MotionDiv variants={item}>
                   <RentVsBuy price={result.priceMax} monthlyRent={toNum(rent)} tenureYears={result.tenureYears} market={market} />
+                </MotionDiv>
+
+                <MotionDiv variants={item}>
+                  <CompareScenarios income={toNum(income)} savings={toNum(savings)} rent={toNum(rent)} age={toNum(age)} goal={goal} market={market} />
                 </MotionDiv>
 
                 <MotionDiv variants={item}>
