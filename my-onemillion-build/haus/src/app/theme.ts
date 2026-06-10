@@ -1,18 +1,10 @@
 "use client";
-import { createTheme } from "@mui/material/styles";
+import { createTheme, type Theme, type ThemeOptions } from "@mui/material/styles";
 
-// haus design system → MUI theme. Seed: Indigo #4F46E5. Premium & polished.
-const theme = createTheme({
-  palette: {
-    mode: "light",
-    primary: { main: "#4F46E5", dark: "#4338CA", light: "#E0E7FF", contrastText: "#FFFFFF" },
-    success: { main: "#16A34A" },
-    warning: { main: "#D97706" },
-    error: { main: "#DC2626" },
-    background: { default: "#F8FAFC", paper: "#FFFFFF" },
-    text: { primary: "#0F172A", secondary: "#475569" },
-    divider: "#E2E8F0",
-  },
+export type Mode = "light" | "dark";
+
+// Shared across both modes: shape, typography, component shapes.
+const shared: ThemeOptions = {
   shape: { borderRadius: 16 },
   typography: {
     fontFamily: "var(--font-inter), system-ui, sans-serif",
@@ -26,15 +18,47 @@ const theme = createTheme({
   },
   components: {
     MuiButton: {
-      styleOverrides: { root: { borderRadius: 12, padding: "12px 22px", fontSize: "0.95rem" } },
+      styleOverrides: {
+        root: { borderRadius: 12, padding: "12px 22px", fontSize: "0.95rem" },
+      },
     },
     MuiPaper: { styleOverrides: { root: { backgroundImage: "none" } } },
     MuiCard: {
       styleOverrides: {
-        root: { border: "1px solid #E2E8F0", boxShadow: "0 1px 3px rgba(15,23,42,0.06)" },
+        root: ({ theme }: { theme: Theme }) => ({
+          border: `1px solid ${theme.palette.divider}`,
+          boxShadow: theme.palette.mode === "light" ? "0 1px 3px rgba(15,23,42,0.06)" : "none",
+        }),
       },
     },
   },
-});
+};
 
-export default theme;
+// Indigo brand seed #4F46E5, kept for both modes (lightened on dark for contrast).
+const light: ThemeOptions["palette"] = {
+  mode: "light",
+  primary: { main: "#4F46E5", dark: "#4338CA", light: "#E0E7FF", contrastText: "#FFFFFF" },
+  success: { main: "#16A34A" },
+  warning: { main: "#D97706" },
+  error: { main: "#DC2626" },
+  background: { default: "#F8FAFC", paper: "#FFFFFF" },
+  text: { primary: "#0F172A", secondary: "#475569" },
+  divider: "#E2E8F0",
+};
+
+const dark: ThemeOptions["palette"] = {
+  mode: "dark",
+  primary: { main: "#818CF8", dark: "#6366F1", light: "#312E81", contrastText: "#0B1020" },
+  success: { main: "#22C55E" },
+  warning: { main: "#F59E0B" },
+  error: { main: "#F87171" },
+  background: { default: "#0A0E1A", paper: "#131A2C" },
+  text: { primary: "#F1F5F9", secondary: "#94A3B8" },
+  divider: "rgba(148,163,184,0.18)",
+};
+
+export function getTheme(mode: Mode): Theme {
+  return createTheme({ ...shared, palette: mode === "dark" ? dark : light });
+}
+
+export default getTheme("light");

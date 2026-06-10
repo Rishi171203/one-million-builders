@@ -6,6 +6,7 @@ import Link from "next/link";
 import { AppBar, Toolbar, Box, Typography, Button, Stack, Chip } from "@mui/material";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import { createClient } from "@/lib/supabase/client";
+import ThemeToggle from "./ThemeToggle";
 
 export default function DashboardHeader({ email, role }: { email: string; role: string }) {
   const [supabase] = useState(() => createClient());
@@ -24,7 +25,7 @@ export default function DashboardHeader({ email, role }: { email: string; role: 
       position="sticky"
       elevation={0}
       sx={{
-        bgcolor: "rgba(255,255,255,0.72)",
+        bgcolor: (t) => (t.palette.mode === "light" ? "rgba(255,255,255,0.72)" : "rgba(11,16,32,0.72)"),
         backdropFilter: "blur(12px)",
         borderBottom: "1px solid",
         borderColor: "divider",
@@ -54,6 +55,7 @@ export default function DashboardHeader({ email, role }: { email: string; role: 
           <Typography variant="body2" color="text.secondary" sx={{ display: { xs: "none", md: "block" }, maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {email}
           </Typography>
+          <ThemeToggle />
           <Button variant="outlined" size="small" onClick={logout}>Log out</Button>
         </Stack>
       </Toolbar>

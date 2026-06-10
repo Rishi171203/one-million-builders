@@ -128,7 +128,7 @@ export default function OwnerTools() {
               </Box>
 
               {mode === "prepay" ? (
-                <Paper elevation={0} sx={{ ...cardSx, bgcolor: "#F0FDF4", borderColor: "#BBF7D0" }}>
+                <Paper elevation={0} sx={{ ...cardSx, bgcolor: (t) => (t.palette.mode === "light" ? "#F0FDF4" : "rgba(34,197,94,0.10)"), borderColor: (t) => (t.palette.mode === "light" ? "#BBF7D0" : "rgba(34,197,94,0.28)") }}>
                   <Stack direction={{ xs: "column", sm: "row" }} spacing={3} sx={{ flexWrap: "wrap" }} useFlexGap>
                     <Stat label="Interest you'd save" value={full(prepay.interestSaved)} accent={GREEN} />
                     <Stat label="Loan-free sooner by" value={monthsToYrMo(prepay.monthsSaved)} accent={GREEN} />
@@ -140,7 +140,7 @@ export default function OwnerTools() {
                   </Typography>
                 </Paper>
               ) : (
-                <Paper elevation={0} sx={{ ...cardSx, bgcolor: "#F0FDF4", borderColor: "#BBF7D0" }}>
+                <Paper elevation={0} sx={{ ...cardSx, bgcolor: (t) => (t.palette.mode === "light" ? "#F0FDF4" : "rgba(34,197,94,0.10)"), borderColor: (t) => (t.palette.mode === "light" ? "#BBF7D0" : "rgba(34,197,94,0.28)") }}>
                   <Stack direction={{ xs: "column", sm: "row" }} spacing={3} sx={{ flexWrap: "wrap" }} useFlexGap>
                     <Stat label="New monthly EMI" value={`${full(refi.newEmi)}/mo`} accent={refi.monthlySaving > 0 ? GREEN : AMBER} />
                     <Stat label="You save each month" value={`${full(Math.max(0, refi.monthlySaving))}/mo`} accent={GREEN} />
@@ -170,7 +170,7 @@ export default function OwnerTools() {
                     <Typography variant="caption" color="text.secondary">You own {eq.equityPct.toFixed(0)}%</Typography>
                     <Typography variant="caption" color="text.secondary">Bank holds {eq.ltvPct.toFixed(0)}%</Typography>
                   </Stack>
-                  <LinearProgress variant="determinate" value={Math.min(100, eq.equityPct)} sx={{ height: 12, borderRadius: 6, bgcolor: "#FEF3C7", "& .MuiLinearProgress-bar": { bgcolor: GREEN, borderRadius: 6 } }} />
+                  <LinearProgress variant="determinate" value={Math.min(100, eq.equityPct)} sx={{ height: 12, borderRadius: 6, bgcolor: (t) => (t.palette.mode === "light" ? "#FEF3C7" : "rgba(245,158,11,0.20)"), "& .MuiLinearProgress-bar": { bgcolor: GREEN, borderRadius: 6 } }} />
                 </Box>
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
                   Of your {compact(toNum(vals.value))} home, you truly own <b>{compact(eq.equity)}</b>. The rest is still owed to the bank
@@ -206,7 +206,7 @@ export default function OwnerTools() {
                 </Paper>
               </Box>
 
-              <Paper elevation={0} sx={{ ...cardSx, bgcolor: "#EEF2FF", borderColor: "#C7D2FE" }}>
+              <Paper elevation={0} sx={{ ...cardSx, bgcolor: (t) => (t.palette.mode === "light" ? "#EEF2FF" : "rgba(129,140,248,0.12)"), borderColor: (t) => (t.palette.mode === "light" ? "#C7D2FE" : "rgba(129,140,248,0.30)") }}>
                 <Chip
                   label={sr.verdict === "rent" ? "Renting out looks attractive" : sr.verdict === "sell" ? "Selling may serve you better" : "It's a balanced call"}
                   sx={{ fontWeight: 700, color: "#fff", bgcolor: sr.verdict === "sell" ? AMBER : "#4F46E5", mb: 1.5 }}

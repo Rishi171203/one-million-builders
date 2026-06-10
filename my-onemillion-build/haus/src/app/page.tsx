@@ -31,6 +31,7 @@ import { computeResult, type Result } from "@/lib/haus";
 import { MARKETS, getMarket, DEFAULT_MARKET, fmtCompact, fmtFull, type Market } from "@/lib/markets";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const MotionDiv = motion.div;
 
@@ -171,7 +172,7 @@ export default function Home() {
         position="sticky"
         elevation={0}
         sx={{
-          bgcolor: "rgba(255,255,255,0.72)",
+          bgcolor: (t) => (t.palette.mode === "light" ? "rgba(255,255,255,0.72)" : "rgba(11,16,32,0.72)"),
           backdropFilter: "blur(12px)",
           borderBottom: "1px solid",
           borderColor: "divider",
@@ -197,7 +198,8 @@ export default function Home() {
               haus<Box component="span" sx={{ color: "primary.main" }}>.</Box>
             </Typography>
           </Stack>
-          <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            <ThemeToggle />
             {user ? (
               <>
                 <Typography variant="body2" color="text.secondary" sx={{ display: { xs: "none", sm: "block" }, maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -216,13 +218,26 @@ export default function Home() {
       </AppBar>
 
       {/* Hero */}
-      <Box sx={{ textAlign: "center", px: 2, pt: { xs: 7, md: 11 }, pb: { xs: 5, md: 7 } }}>
-        <Container maxWidth="md">
+      <Box sx={{ position: "relative", overflow: "hidden", textAlign: "center", px: 2, pt: { xs: 7, md: 11 }, pb: { xs: 5, md: 7 } }}>
+        {/* Animated gradient orbs drifting behind the headline */}
+        <MotionDiv
+          aria-hidden
+          animate={{ x: [0, 40, 0], y: [0, -30, 0] }}
+          transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+          style={{ position: "absolute", top: -120, left: "12%", width: 360, height: 360, borderRadius: "50%", background: "radial-gradient(circle, rgba(79,70,229,0.35), transparent 70%)", filter: "blur(40px)", pointerEvents: "none", zIndex: 0 }}
+        />
+        <MotionDiv
+          aria-hidden
+          animate={{ x: [0, -50, 0], y: [0, 40, 0] }}
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+          style={{ position: "absolute", top: -40, right: "10%", width: 320, height: 320, borderRadius: "50%", background: "radial-gradient(circle, rgba(147,51,234,0.30), transparent 70%)", filter: "blur(40px)", pointerEvents: "none", zIndex: 0 }}
+        />
+        <Container maxWidth="md" sx={{ position: "relative", zIndex: 1 }}>
           <MotionDiv initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
             <Chip
               icon={<PublicRoundedIcon />}
               label="Now in 5 countries"
-              sx={{ mb: 3, bgcolor: "primary.light", color: "primary.dark", fontWeight: 600 }}
+              sx={{ mb: 3, bgcolor: "rgba(99,102,241,0.12)", color: "primary.main", fontWeight: 600, "& .MuiChip-icon": { color: "primary.main" } }}
             />
             <Typography variant="h1" sx={{ fontSize: { xs: "2.4rem", md: "4rem" }, lineHeight: 1.05, mb: 2.5 }}>
               Buy a home with{" "}
@@ -268,7 +283,18 @@ export default function Home() {
             { t: "Plain language", d: "Every term explained. No confusing jargon, ever." },
             { t: "Built for your country", d: "Local currency, interest rates, and down-payment norms." },
           ].map((v) => (
-            <Paper key={v.t} elevation={0} sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider" }}>
+            <Paper
+              key={v.t}
+              elevation={0}
+              sx={{
+                p: 3,
+                borderRadius: 4,
+                border: "1px solid",
+                borderColor: "divider",
+                transition: "transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease",
+                "&:hover": { transform: "translateY(-4px)", boxShadow: "0 14px 34px rgba(79,70,229,0.14)", borderColor: "primary.main" },
+              }}
+            >
               <Typography variant="h6" sx={{ mb: 0.5 }}>{v.t}</Typography>
               <Typography variant="body2" color="text.secondary">{v.d}</Typography>
             </Paper>
@@ -438,7 +464,7 @@ export default function Home() {
                     <AnimatePresence mode="wait">
                       {openTerm !== null && (
                         <MotionDiv key={openTerm} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.25 }}>
-                          <Box sx={{ mt: 2, p: 2, bgcolor: "#F1F5F9", borderRadius: 2, borderLeft: "3px solid", borderColor: "primary.main" }}>
+                          <Box sx={{ mt: 2, p: 2, bgcolor: (t) => (t.palette.mode === "light" ? "#F1F5F9" : "rgba(148,163,184,0.10)"), borderRadius: 2, borderLeft: "3px solid", borderColor: "primary.main" }}>
                             <Typography variant="body2">
                               <b>{result.terms[openTerm].term}:</b> {result.terms[openTerm].explanation}
                             </Typography>
@@ -460,7 +486,7 @@ export default function Home() {
                     <Stack spacing={2}>
                       {result.nextSteps.map((s, i) => (
                         <Stack key={i} direction="row" spacing={2} sx={{ alignItems: "flex-start" }}>
-                          <Box sx={{ flexShrink: 0, width: 28, height: 28, borderRadius: "50%", bgcolor: "primary.light", color: "primary.dark", display: "grid", placeItems: "center", fontWeight: 700, fontSize: "0.85rem" }}>
+                          <Box sx={{ flexShrink: 0, width: 28, height: 28, borderRadius: "50%", bgcolor: "rgba(99,102,241,0.15)", color: "primary.main", display: "grid", placeItems: "center", fontWeight: 700, fontSize: "0.85rem" }}>
                             {i + 1}
                           </Box>
                           <Typography sx={{ pt: 0.3 }}>{s}</Typography>
@@ -471,7 +497,7 @@ export default function Home() {
                 </MotionDiv>
 
                 <MotionDiv variants={item}>
-                  <Box sx={{ mt: 2.5, p: 2.5, bgcolor: "#F1F5F9", borderRadius: 3 }}>
+                  <Box sx={{ mt: 2.5, p: 2.5, bgcolor: (t) => (t.palette.mode === "light" ? "#F1F5F9" : "rgba(148,163,184,0.10)"), borderRadius: 3 }}>
                     <Typography variant="caption" color="text.secondary">
                       <b>Assumptions ({market.name}):</b> {result.assumptions.interestPct}% annual interest ·{" "}
                       {result.tenureYears}-year tenure · {result.assumptions.downPaymentPct}% down payment ·

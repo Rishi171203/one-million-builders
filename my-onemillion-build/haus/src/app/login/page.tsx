@@ -22,6 +22,7 @@ import {
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import GoogleIcon from "@mui/icons-material/Google";
 import { createClient } from "@/lib/supabase/client";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function LoginPage() {
   const [supabase] = useState(() => createClient());
@@ -79,7 +80,10 @@ export default function LoginPage() {
   }
 
   return (
-    <Container maxWidth="sm" sx={{ minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", py: 6 }}>
+    <Container maxWidth="sm" sx={{ minHeight: "100dvh", display: "flex", flexDirection: "column", justifyContent: "center", py: 6 }}>
+      <Box sx={{ position: "fixed", top: 16, right: 16, zIndex: 10 }}>
+        <ThemeToggle />
+      </Box>
       <Box sx={{ textAlign: "center", mb: 3 }}>
         <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
           <Box sx={{ width: 38, height: 38, borderRadius: 2, display: "grid", placeItems: "center", background: "linear-gradient(135deg,#4F46E5,#7C73FF)", color: "#fff" }}>
