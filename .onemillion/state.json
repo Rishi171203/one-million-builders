@@ -1,11 +1,12 @@
 {
   "course": "OneMillion Builder",
-  "current_day": 6,
-  "current_phase": "build",
-  "next_agent": "build",
+  "current_day": 14,
+  "current_phase": "review-and-harden (pre-ship: Day 14 security/trust review + QA, then deploy)",
+  "next_agent": "review",
   "product_dir": "my-onemillion-build",
-  "status": "building — DONE: Sprint 1 (global advisor), Sprint 2 (Supabase auth), Sprint 3a (roles+routing), admin setup verified, Feature: Save advice+history, Feature: Homeowner tools (prepay/refinance/equity/sell-vs-rent), header nav links. NEXT: Design polish (paused — Rishi wants to give instructions first), then Vercel deploy.",
-  "last_verified_day": 5,
+  "status": "building — well ahead of schedule (CEO directive: build the real app independently). DONE: Sprint 1 (global advisor), Sprint 2 (Supabase auth), Sprint 3 (roles+routing + save advice+history + dashboards), Homeowner tools, Design polish (dark mode, animations, real Unsplash photography in every layer + a Magic-MCP-inspired homes gallery), AI advice layer (Google Gemini free tier: personalized verdicts + AI-tailored jargon, with a type-out effect and graceful fallback), and 8 buyer features — rent-vs-buy depth, what-if sliders+chart, compare scenarios, edit&re-run saved advice, AI jargon chips, share/export (link+PDF), profile page, quality/SEO (middleware->proxy + metadata). All committed+pushed (through 6f8d054), tsc-clean. NEXT: enable Google OAuth in Supabase (Rishi's manual step), then Vercel deploy — parked until the product is ready (no rush).",
+  "last_verified_day": 13,
+  "days_status": "Days 0-8 fully done (orientation, idea, validate/PRD, spec, design, plan/architecture, app-shell, auth+db, core-build). Day 9 (review) PARTIAL — did a PRD review; a formal code review is still to backfill. Day 10 (qa/tests) PARTIAL — tsc-clean + manual checks, but no automated test suite yet. Days 11-13 fully done (AI spec, first AI build via Gemini, product polish). Days 14-18 PENDING (security/trust review, production QA, ship to prod, sell/users, demo). Pointer advanced 6 -> 14 on 2026-06-11 to match the actual build; backfill Days 9-10 before shipping.",
   "spec_validation": "passed — refined-prd.md is a complete, non-drifting, buildable MVP spec (validated 2026-06-09)",
   "architecture": "Next.js + MUI + Framer Motion frontend; Supabase (Postgres + Auth, email/password + Google) DB+auth; Vercel global deploy. Single-user ownership, no RBAC, RLS on user data. Global multi-currency (India, USA, Germany, UK, UAE). Plan in architecture.md + 5 sprint briefs in sprints/. Day 4 design done (artifacts + working app built); Day 5 architecture done 2026-06-10.",
   "product": {
@@ -13,8 +14,8 @@
     "product_name": "haus",
     "target_user": "First-time homebuyers; GLOBAL multi-currency product (launch markets: India, USA, Germany, UK, UAE). Scope widened from Bangalore-only per CEO direction 2026-06-10."
   },
-  "current_blocker": "None",
-  "next_smallest_action": "RESUME: Save advice+history DONE (Rishi ran 0001 + 0002 SQL, made his account admin, verified). Homeowner tools DONE. NEXT: Feature 3 = Design polish, but PAUSED — Rishi wants to give specific design instructions first, so ask him before starting. After design: Sprint 5 = deploy to Vercel. Dev server: cd my-onemillion-build/haus && npm run dev (localhost:3000).",
+  "current_blocker": "None (Google sign-in is a pending manual step by Rishi, not a blocker).",
+  "next_smallest_action": "On Day 14 (security/trust review) by the advanced pointer. TODO: (1) REMIND RISHI to enable Google sign-in (Supabase Auth -> Providers -> Google + Google Cloud OAuth client; button + /auth/callback already coded). (2) Backfill Day 9 (formal code review) and Day 10 (automated tests). (3) Day 14 security/trust review -> Day 15 production QA -> Day 16 deploy to Vercel (deploy parked until the product is ready — no rush, per Rishi). Roadmap: my-onemillion-build/haus/docs/roadmap.md. Journal: my-onemillion-build/haus/docs/journal/. Dev server: cd my-onemillion-build/haus && npm run dev (localhost:3000).",
   "preflight": {
     "canonical_landing_page": "https://github.com/siddsdixit/one-million-builders/tree/main/course",
     "upstream_repo": "siddsdixit/one-million-builders",
