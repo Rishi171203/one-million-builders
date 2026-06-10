@@ -35,6 +35,7 @@ import type { User } from "@supabase/supabase-js";
 import ThemeToggle from "@/components/ThemeToggle";
 import { FeatureArt } from "@/components/art/HausArt";
 import RealHomesGallery from "@/components/RealHomesGallery";
+import TypeOut from "@/components/TypeOut";
 import { HERO_PHOTO, unsplashUrl } from "@/lib/photos";
 
 const MotionDiv = motion.div;
@@ -524,7 +525,7 @@ export default function Home() {
                   {loading ? (
                     <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
                       <CircularProgress size={20} color="inherit" />
-                      <span>Crunching your numbers…</span>
+                      <span>Writing your advice…</span>
                     </Stack>
                   ) : (
                     "Get my verdict"
@@ -560,7 +561,7 @@ export default function Home() {
                       {ready ? "You're in a strong position to buy." : "Renting is the smarter move — for now."}
                     </Typography>
                     <Typography color="text.secondary" sx={{ fontSize: "1.05rem", lineHeight: 1.6 }}>
-                      {result.verdict}
+                      <TypeOut text={result.verdict} />
                     </Typography>
                   </Paper>
                 </MotionDiv>
