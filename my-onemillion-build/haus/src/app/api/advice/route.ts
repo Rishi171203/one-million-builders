@@ -26,14 +26,22 @@ Rules you must always follow:
 5. Never mention that you are an AI, a model, or that you were given numbers.
 Respond with the requested JSON only.`;
 
-// Gemini structured-output schema → we always get { verdict, nextSteps }.
+// Gemini structured-output schema → we always get { verdict, nextSteps, terms }.
 const RESPONSE_SCHEMA = {
   type: "OBJECT",
   properties: {
     verdict: { type: "STRING" },
     nextSteps: { type: "ARRAY", items: { type: "STRING" } },
+    terms: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: { term: { type: "STRING" }, explanation: { type: "STRING" } },
+        required: ["term", "explanation"],
+      },
+    },
   },
-  required: ["verdict", "nextSteps"],
+  required: ["verdict", "nextSteps", "terms"],
 } as const;
 
 function buildUserPrompt(inputs: Inputs, marketCode: string): string {
@@ -63,13 +71,17 @@ function buildUserPrompt(inputs: Inputs, marketCode: string): string {
     .filter(Boolean)
     .join("\n");
 
+  const termsList = r.terms.map((t) => `- ${t.term}: ${t.explanation}`).join("\n");
+
   return `${situation}
 
 ${calc}
 
 Write a JSON object with:
 1. "verdict": 2-4 sentences explaining this verdict to them personally and warmly, referencing their actual numbers and (if relevant) answering their question.
-2. "nextSteps": 3-5 short, concrete next steps tailored to whether they should buy now or keep renting.`;
+2. "nextSteps": 3-5 short, concrete next steps tailored to whether they should buy now or keep renting.
+3. "terms": rewrite each of these jargon explanations to be warm and crystal-clear for a first-time buyer. Keep the EXACT same "term" name for each, keep any figures already shown, and do not invent new numbers:
+${termsList}`;
 }
 
 export async function POST(request: Request) {
@@ -93,7 +105,7 @@ export async function POST(request: Request) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     // No key yet → still return a working verdict (the deterministic one).
-    return Response.json({ verdict: fallback.verdict, nextSteps: fallback.nextSteps, source: "fallback" });
+    return Response.json({ verdict: fallback.verdict, nextSteps: fallback.nextSteps, terms: fallback.terms, source: "fallback" });
   }
 
   try {
@@ -111,7 +123,7 @@ export async function POST(request: Request) {
             // toward the output budget. Disable thinking (budget 0) so the
             // whole budget goes to our JSON answer, and keep a roomy cap.
             thinkingConfig: { thinkingBudget: 0 },
-            maxOutputTokens: 1200,
+            maxOutputTokens: 1500,
             responseMimeType: "application/json",
             responseSchema: RESPONSE_SCHEMA,
           },
@@ -126,15 +138,28 @@ export async function POST(request: Request) {
     const text: string | undefined = data?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) throw new Error("Empty Gemini response");
 
-    const parsed = JSON.parse(text) as { verdict?: string; nextSteps?: string[] };
+    const parsed = JSON.parse(text) as {
+      verdict?: string;
+      nextSteps?: string[];
+      terms?: { term?: string; explanation?: string }[];
+    };
     if (!parsed.verdict || !Array.isArray(parsed.nextSteps) || parsed.nextSteps.length === 0) {
       throw new Error("Malformed Gemini JSON");
     }
+    // Keep only well-formed terms; fall back to the deterministic ones if none.
+    const terms = Array.isArray(parsed.terms)
+      ? parsed.terms.filter((t): t is { term: string; explanation: string } => !!t && typeof t.term === "string" && typeof t.explanation === "string")
+      : [];
 
-    return Response.json({ verdict: parsed.verdict, nextSteps: parsed.nextSteps, source: "ai" });
+    return Response.json({
+      verdict: parsed.verdict,
+      nextSteps: parsed.nextSteps,
+      terms: terms.length ? terms : fallback.terms,
+      source: "ai",
+    });
   } catch (err) {
     // Any failure (no quota, timeout, bad JSON) → silent, safe fallback.
     console.error("[/api/advice] Gemini call failed, using fallback:", err);
-    return Response.json({ verdict: fallback.verdict, nextSteps: fallback.nextSteps, source: "fallback" });
+    return Response.json({ verdict: fallback.verdict, nextSteps: fallback.nextSteps, terms: fallback.terms, source: "fallback" });
   }
 }

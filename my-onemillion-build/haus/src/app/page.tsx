@@ -165,6 +165,7 @@ export default function Home() {
         const data = await res.json();
         if (typeof data?.verdict === "string" && data.verdict.trim()) r.verdict = data.verdict;
         if (Array.isArray(data?.nextSteps) && data.nextSteps.length) r.nextSteps = data.nextSteps;
+        if (Array.isArray(data?.terms) && data.terms.length) r.terms = data.terms;
         setAiPowered(data?.source === "ai");
       }
     } catch {
