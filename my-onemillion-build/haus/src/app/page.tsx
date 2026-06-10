@@ -24,6 +24,8 @@ import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import PublicRoundedIcon from "@mui/icons-material/PublicRounded";
+import BookmarkAddRoundedIcon from "@mui/icons-material/BookmarkAddRounded";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import { useRouter } from "next/navigation";
 import { computeResult, type Result } from "@/lib/haus";
 import { MARKETS, getMarket, DEFAULT_MARKET, fmtCompact, fmtFull, type Market } from "@/lib/markets";
@@ -64,6 +66,10 @@ export default function Home() {
   const [result, setResult] = useState<Result | null>(null);
   const [openTerm, setOpenTerm] = useState<number | null>(null);
   const [snack, setSnack] = useState(false);
+  const [snackMsg, setSnackMsg] = useState("Glad it helped 💙");
+  const [snackSeverity, setSnackSeverity] = useState<"success" | "error">("success");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const resultRef = useRef<HTMLDivElement>(null);
   const advisorRef = useRef<HTMLDivElement>(null);
@@ -110,6 +116,7 @@ export default function Home() {
     setLoading(true);
     setResult(null);
     setOpenTerm(null);
+    setSaved(false);
     window.setTimeout(() => {
       const r = computeResult(
         { income: toNum(income), savings: toNum(savings), rent: toNum(rent), age: toNum(age), goal },
@@ -119,6 +126,38 @@ export default function Home() {
       setLoading(false);
       window.setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
     }, 900);
+  }
+
+  function showSnack(msg: string, severity: "success" | "error" = "success") {
+    setSnackMsg(msg);
+    setSnackSeverity(severity);
+    setSnack(true);
+  }
+
+  async function saveResult() {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+    if (!result) return;
+    setSaving(true);
+    const { error } = await supabase.from("assessments").insert({
+      user_id: user.id,
+      market_code: market.code,
+      inputs: { income: toNum(income), savings: toNum(savings), rent: toNum(rent), age: toNum(age), goal },
+      status: result.status,
+      price_min: Math.round(result.priceMin),
+      price_max: Math.round(result.priceMax),
+      emi: Math.round(result.emi),
+      verdict: result.verdict,
+    });
+    setSaving(false);
+    if (error) {
+      showSnack("Couldn't save — " + error.message, "error");
+    } else {
+      setSaved(true);
+      showSnack("Saved to your dashboard ✅");
+    }
   }
 
   const ready = result?.status === "ready";
@@ -384,7 +423,7 @@ export default function Home() {
                 <MotionDiv variants={item}>
                   <Paper elevation={0} sx={{ mt: 2.5, p: { xs: 3, md: 4 }, borderRadius: 4, border: "1px solid", borderColor: "divider" }}>
                     <Typography variant="h6" sx={{ mb: 2 }}>Jargon, explained</Typography>
-                    <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+                    <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
                       {result.terms.map((t, i) => (
                         <Chip
                           key={t.term}
@@ -441,9 +480,23 @@ export default function Home() {
                     </Typography>
                   </Box>
                   <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} sx={{ mt: 2.5 }}>
-                    <Button variant="contained" color="success" startIcon={<FavoriteRoundedIcon />} onClick={() => setSnack(true)}>
+                    <Button variant="contained" color="success" startIcon={<FavoriteRoundedIcon />} onClick={() => showSnack("Glad it helped 💙")}>
                       This helped me
                     </Button>
+                    {user ? (
+                      <Button
+                        variant="outlined"
+                        disabled={saving || saved}
+                        startIcon={saved ? <CheckRoundedIcon /> : <BookmarkAddRoundedIcon />}
+                        onClick={saveResult}
+                      >
+                        {saved ? "Saved" : saving ? "Saving…" : "Save this result"}
+                      </Button>
+                    ) : (
+                      <Button variant="outlined" startIcon={<BookmarkAddRoundedIcon />} onClick={() => router.push("/login")}>
+                        Log in to save
+                      </Button>
+                    )}
                     <Button variant="text" onClick={() => advisorRef.current?.scrollIntoView({ behavior: "smooth" })}>
                       Edit my details
                     </Button>
@@ -456,8 +509,8 @@ export default function Home() {
       </Container>
 
       <Snackbar open={snack} autoHideDuration={2600} onClose={() => setSnack(false)} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
-        <Alert severity="success" variant="filled" sx={{ borderRadius: 2 }}>
-          Glad it helped 💙
+        <Alert severity={snackSeverity} variant="filled" sx={{ borderRadius: 2 }}>
+          {snackMsg}
         </Alert>
       </Snackbar>
     </>

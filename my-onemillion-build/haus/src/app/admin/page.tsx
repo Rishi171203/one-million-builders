@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
-import { Container, Box, Typography, Paper } from "@mui/material";
+import { Container, Box, Typography, Paper, Chip, Stack } from "@mui/material";
 import { createClient } from "@/lib/supabase/server";
 import DashboardHeader from "@/components/DashboardHeader";
+import { getMarket, fmtCompact } from "@/lib/markets";
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
@@ -14,15 +15,24 @@ export default async function AdminDashboard() {
   const role = profile?.role ?? "buyer";
   if (role !== "admin") redirect("/dashboard");
 
-  // Lightweight live stats (more analytics added in the admin sprint).
+  // Live stats — admins can read all rows via the is_admin() RLS policy.
   const { count: totalUsers } = await supabase.from("profiles").select("*", { count: "exact", head: true });
   const { count: buyers } = await supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "buyer");
   const { count: owners } = await supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "owner");
+  const { count: assessmentCount } = await supabase.from("assessments").select("*", { count: "exact", head: true });
+
+  const { data: recent } = await supabase
+    .from("assessments")
+    .select("id, market_code, status, price_min, price_max, created_at")
+    .order("created_at", { ascending: false })
+    .limit(8);
+  const recentItems = recent ?? [];
 
   const stats = [
     { label: "Total users", value: totalUsers ?? 0 },
     { label: "Homebuyers", value: buyers ?? 0 },
     { label: "Homeowners", value: owners ?? 0 },
+    { label: "Saved assessments", value: assessmentCount ?? 0 },
   ];
 
   return (
@@ -32,7 +42,7 @@ export default async function AdminDashboard() {
         <Typography variant="h3" sx={{ mb: 1 }}>Builder dashboard 🛠️</Typography>
         <Typography color="text.secondary" sx={{ mb: 4 }}>Your product at a glance.</Typography>
 
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(3,1fr)" }, gap: 2.5, mb: 3 }}>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2,1fr)", md: "repeat(4,1fr)" }, gap: 2.5, mb: 3 }}>
           {stats.map((s) => (
             <Paper key={s.label} elevation={0} sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider" }}>
               <Typography variant="overline" color="text.secondary">{s.label}</Typography>
@@ -42,11 +52,30 @@ export default async function AdminDashboard() {
         </Box>
 
         <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider" }}>
-          <Typography variant="h6" sx={{ mb: 1 }}>More analytics coming</Typography>
-          <Typography variant="body2" color="text.secondary">
-            Assessments run, “this helped me” counts, country breakdown, and recent activity will appear here
-            once we add saved assessments (next sprints).
-          </Typography>
+          <Typography variant="h6" sx={{ mb: 2 }}>Recent activity</Typography>
+          {recentItems.length === 0 ? (
+            <Typography variant="body2" color="text.secondary">
+              No saved assessments yet. They’ll appear here as users save their verdicts.
+            </Typography>
+          ) : (
+            <Stack spacing={1.5}>
+              {recentItems.map((a) => {
+                const m = getMarket(a.market_code);
+                const ready = a.status === "ready";
+                return (
+                  <Stack key={a.id} direction="row" spacing={1.5} sx={{ alignItems: "center", justifyContent: "space-between", py: 1, borderBottom: "1px solid", borderColor: "divider" }}>
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>{m.flag}&nbsp; {m.name}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {fmtCompact(a.price_min, m)} – {fmtCompact(a.price_max, m)} · {new Date(a.created_at).toLocaleDateString(m.locale, { day: "numeric", month: "short" })}
+                      </Typography>
+                    </Box>
+                    <Chip size="small" label={ready ? "Ready" : "Rent"} sx={{ fontWeight: 700, color: "#fff", bgcolor: ready ? "#16A34A" : "#D97706" }} />
+                  </Stack>
+                );
+              })}
+            </Stack>
+          )}
         </Paper>
       </Container>
     </>
