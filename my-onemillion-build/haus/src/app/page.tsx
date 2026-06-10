@@ -36,6 +36,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { FeatureArt } from "@/components/art/HausArt";
 import RealHomesGallery from "@/components/RealHomesGallery";
 import TypeOut from "@/components/TypeOut";
+import RentVsBuy from "@/components/RentVsBuy";
 import { HERO_PHOTO, unsplashUrl } from "@/lib/photos";
 
 const MotionDiv = motion.div;
@@ -642,6 +643,10 @@ export default function Home() {
                       ))}
                     </Stack>
                   </Paper>
+                </MotionDiv>
+
+                <MotionDiv variants={item}>
+                  <RentVsBuy price={result.priceMax} monthlyRent={toNum(rent)} tenureYears={result.tenureYears} market={market} />
                 </MotionDiv>
 
                 <MotionDiv variants={item}>
