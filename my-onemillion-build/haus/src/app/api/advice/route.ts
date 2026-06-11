@@ -11,6 +11,26 @@
 
 import { computeResult, type Inputs } from "@/lib/haus";
 import { getMarket, fmtCompact, fmtFull } from "@/lib/markets";
+import { createClient } from "@/lib/supabase/server";
+
+// Best-effort per-user rate limit. In-memory (resets on cold start / per
+// instance) — a light guard against quota abuse, not a hard global limit.
+// Swap for Upstash/Redis if we ever need a strict, multi-instance limit.
+const RATE_WINDOW_MS = 60_000;
+const RATE_MAX = 12; // requests per user per minute
+const recentHits = new Map<string, number[]>();
+
+function isRateLimited(key: string): boolean {
+  const now = Date.now();
+  const hits = (recentHits.get(key) ?? []).filter((t) => now - t < RATE_WINDOW_MS);
+  if (hits.length >= RATE_MAX) {
+    recentHits.set(key, hits);
+    return true;
+  }
+  hits.push(now);
+  recentHits.set(key, hits);
+  return false;
+}
 
 // Free-tier Gemini model. Override with GEMINI_MODEL in .env.local if the name
 // ever changes, without touching code. (gemini-2.5-flash has free quota on this
@@ -85,6 +105,19 @@ ${termsList}`;
 }
 
 export async function POST(request: Request) {
+  // Require a logged-in user — the advisor lives behind login, and this keeps
+  // the endpoint from being used as a free, anonymous AI/quota drain.
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return Response.json({ error: "Please sign in to use the advisor." }, { status: 401 });
+  }
+  if (isRateLimited(user.id)) {
+    return Response.json({ error: "You're going a bit fast — please wait a moment and try again." }, { status: 429 });
+  }
+
   let inputs: Inputs;
   let marketCode: string;
   try {
