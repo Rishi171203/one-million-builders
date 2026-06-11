@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -36,6 +36,17 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  // Where to send the user after a successful sign-in (the app, by default).
+  const [next, setNext] = useState("/advisor");
+
+  // Read ?mode= and ?next= from the URL on mount (window.location avoids the
+  // useSearchParams Suspense rule). mode=login opens the Log in tab.
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    if (sp.get("mode") === "login") setTab(0);
+    const n = sp.get("next");
+    if (n && n.startsWith("/")) setNext(n);
+  }, []);
 
   async function handleEmail() {
     setError(null);
@@ -50,7 +61,7 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       setLoading(false);
       if (error) setError(error.message);
-      else router.push("/dashboard");
+      else router.push(next);
     } else {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -64,7 +75,7 @@ export default function LoginPage() {
           setTab(0);
         } else setError(error.message);
       } else if (data.session) {
-        router.push("/dashboard"); // email confirmation disabled → logged in
+        router.push(next); // email confirmation disabled → logged in
       } else {
         setInfo("Account created! Check your email to confirm, then log in.");
         setTab(0);
@@ -76,7 +87,7 @@ export default function LoginPage() {
     setError(null);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
     });
     if (error) setError(error.message);
   }

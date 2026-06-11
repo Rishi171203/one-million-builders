@@ -61,7 +61,7 @@ export default async function Dashboard() {
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
             Run the advisor to see what you can afford and whether to buy now.
           </Typography>
-          <Button href="/" variant="contained" endIcon={<ArrowForwardRoundedIcon />}>
+          <Button href="/advisor" variant="contained" endIcon={<ArrowForwardRoundedIcon />}>
             Open the advisor
           </Button>
         </Paper>
@@ -87,7 +87,7 @@ export default async function Dashboard() {
               const ready = a.status === "ready";
               const inp = a.inputs as { income?: number; savings?: number; rent?: number; age?: number; goal?: string } | null;
               const editHref = inp
-                ? `/?${new URLSearchParams({
+                ? `/advisor?${new URLSearchParams({
                     market: a.market_code,
                     income: String(inp.income ?? ""),
                     savings: String(inp.savings ?? ""),
