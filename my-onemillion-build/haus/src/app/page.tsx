@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { MARKETS } from "@/lib/markets";
 import { createClient } from "@/lib/supabase/client";
+import { roleHome } from "@/lib/roles";
 import type { User } from "@supabase/supabase-js";
 import ThemeToggle from "@/components/ThemeToggle";
 import { FeatureArt } from "@/components/art/HausArt";
@@ -33,6 +34,7 @@ export default function Home() {
   const router = useRouter();
   const [supabase] = useState(() => createClient());
   const [user, setUser] = useState<User | null>(null);
+  const [role, setRole] = useState<string | null>(null);
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) =>
@@ -40,15 +42,32 @@ export default function Home() {
     );
     return () => sub.subscription.unsubscribe();
   }, [supabase]);
+  // Look up the role so the buttons point to the right home (advisor/tools/admin).
+  useEffect(() => {
+    if (!user) {
+      setRole(null);
+      return;
+    }
+    supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => setRole(data?.role ?? "buyer"));
+  }, [user, supabase]);
   async function logout() {
     await supabase.auth.signOut();
     setUser(null);
   }
 
+  const home = roleHome(role);
+  const homeLabel =
+    role === "owner" ? "My homeowner tools" : role === "admin" ? "Builder dashboard" : "Open the advisor";
+
   // The hero call-to-action depends on whether you're signed in.
-  // Logged out → start the sign-up flow; logged in → straight into the app.
+  // Logged out → start the sign-up flow; logged in → straight into their app.
   function primaryAction() {
-    router.push(user ? "/advisor" : "/login");
+    router.push(user ? home : "/login");
   }
 
   return (
@@ -91,7 +110,7 @@ export default function Home() {
                 <Typography variant="body2" color="text.secondary" sx={{ display: { xs: "none", sm: "block" }, maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {user.email}
                 </Typography>
-                <Button variant="contained" size="small" onClick={() => router.push("/advisor")}>Open advisor</Button>
+                <Button variant="contained" size="small" onClick={() => router.push(home)}>{homeLabel}</Button>
                 <Button variant="text" size="small" onClick={() => router.push("/dashboard")} sx={{ display: { xs: "none", sm: "inline-flex" } }}>Dashboard</Button>
                 <Button variant="outlined" size="small" onClick={logout}>Log out</Button>
               </>
@@ -157,7 +176,7 @@ export default function Home() {
               onClick={primaryAction}
               sx={{ py: 1.6, px: 4, fontSize: "1.05rem", boxShadow: "0 12px 28px rgba(79,70,229,0.3)" }}
             >
-              {user ? "Open the advisor" : "Get started — it's free"}
+              {user ? homeLabel : "Get started — it's free"}
             </Button>
             {!user && (
               <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
@@ -322,6 +341,61 @@ export default function Home() {
       {/* Real homes gallery */}
       <Box><RealHomesGallery /></Box>
 
+      {/* Homeowner entry — buyers are the hero; this is the secondary path. */}
+      {!user && (
+        <Container maxWidth="md" sx={{ pt: { xs: 4, md: 6 } }}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 3, md: 4 },
+              borderRadius: 4,
+              border: "1px solid",
+              borderColor: (t) => (t.palette.mode === "light" ? "rgba(217,119,6,0.25)" : "rgba(217,119,6,0.4)"),
+              background: (t) =>
+                t.palette.mode === "light"
+                  ? "linear-gradient(135deg, rgba(253,230,138,0.35), rgba(217,119,6,0.06))"
+                  : "linear-gradient(135deg, rgba(217,119,6,0.18), rgba(180,83,9,0.08))",
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              alignItems: { sm: "center" },
+              gap: 2.5,
+            }}
+          >
+            <Box
+              aria-hidden
+              sx={{
+                width: 52,
+                height: 52,
+                borderRadius: 3,
+                flexShrink: 0,
+                display: "grid",
+                placeItems: "center",
+                fontSize: "1.6rem",
+                background: "radial-gradient(circle at 35% 30%, #FDE68A, #D97706)",
+                border: "1px solid #B45309",
+              }}
+            >
+              🔑
+            </Box>
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="h6" sx={{ mb: 0.5 }}>Already own a home?</Typography>
+              <Typography variant="body2" color="text.secondary">
+                haus isn&apos;t only for buyers. Sign up as a homeowner for free tools to{" "}
+                prepay &amp; refinance smartly, track your equity, and weigh selling vs. renting out — all in your currency.
+              </Typography>
+            </Box>
+            <Button
+              variant="outlined"
+              endIcon={<ArrowForwardRoundedIcon />}
+              onClick={() => router.push("/login?role=owner")}
+              sx={{ flexShrink: 0, borderColor: "#B45309", color: "#B45309", "&:hover": { borderColor: "#92400E", bgcolor: "rgba(217,119,6,0.08)" } }}
+            >
+              Explore homeowner tools
+            </Button>
+          </Paper>
+        </Container>
+      )}
+
       {/* Closing call-to-action */}
       <Container maxWidth="md" sx={{ py: { xs: 7, md: 10 }, textAlign: "center" }}>
         <Paper
@@ -351,7 +425,7 @@ export default function Home() {
             onClick={primaryAction}
             sx={{ py: 1.6, px: 4, fontSize: "1.05rem", boxShadow: "0 12px 28px rgba(79,70,229,0.3)" }}
           >
-            {user ? "Open the advisor" : "Create your free account"}
+            {user ? homeLabel : "Create your free account"}
           </Button>
         </Paper>
       </Container>

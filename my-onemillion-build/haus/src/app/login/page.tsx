@@ -22,6 +22,7 @@ import {
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import GoogleIcon from "@mui/icons-material/Google";
 import { createClient } from "@/lib/supabase/client";
+import { roleHome } from "@/lib/roles";
 import ThemeToggle from "@/components/ThemeToggle";
 import PhotoBanner from "@/components/PhotoBanner";
 import { INTERIOR_PHOTO } from "@/lib/photos";
@@ -36,17 +37,34 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
-  // Where to send the user after a successful sign-in (the app, by default).
-  const [next, setNext] = useState("/advisor");
+  // An explicit destination (e.g. a deep link). Empty = decide by the user's role.
+  const [next, setNext] = useState("");
 
-  // Read ?mode= and ?next= from the URL on mount (window.location avoids the
-  // useSearchParams Suspense rule). mode=login opens the Log in tab.
+  // Read ?mode=, ?next= and ?role= from the URL on mount (window.location avoids
+  // the useSearchParams Suspense rule). mode=login opens the Log in tab;
+  // role=owner opens Register pre-set to Homeowner.
   useEffect(() => {
     const sp = new URLSearchParams(window.location.search);
     if (sp.get("mode") === "login") setTab(0);
     const n = sp.get("next");
     if (n && n.startsWith("/")) setNext(n);
+    if (sp.get("role") === "owner") {
+      setRole("owner");
+      setTab(1);
+    }
   }, []);
+
+  // Look up the signed-in user's role, then send them to their home screen
+  // (buyer → advisor, homeowner → tools, admin → dashboard).
+  async function goToRoleHome() {
+    const { data: { user } } = await supabase.auth.getUser();
+    let role: string | null = null;
+    if (user) {
+      const { data: p } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+      role = p?.role ?? "buyer";
+    }
+    router.push(roleHome(role));
+  }
 
   async function handleEmail() {
     setError(null);
@@ -61,7 +79,8 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       setLoading(false);
       if (error) setError(error.message);
-      else router.push(next);
+      else if (next) router.push(next);
+      else await goToRoleHome();
     } else {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -75,7 +94,9 @@ export default function LoginPage() {
           setTab(0);
         } else setError(error.message);
       } else if (data.session) {
-        router.push(next); // email confirmation disabled → logged in
+        // Email confirmation disabled → already logged in. Land on the home
+        // screen for the type they just registered as.
+        router.push(next || roleHome(role));
       } else {
         setInfo("Account created! Check your email to confirm, then log in.");
         setTab(0);
@@ -87,7 +108,7 @@ export default function LoginPage() {
     setError(null);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
+      options: { redirectTo: `${window.location.origin}/auth/callback${next ? `?next=${encodeURIComponent(next)}` : ""}` },
     });
     if (error) setError(error.message);
   }
