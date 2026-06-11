@@ -122,11 +122,25 @@ export async function POST(request: Request) {
   let marketCode: string;
   try {
     const body = await request.json();
-    inputs = body.inputs;
-    marketCode = body.marketCode;
-    if (!inputs || typeof inputs.income !== "number" || !marketCode) {
+    const raw = body?.inputs;
+    marketCode = typeof body?.marketCode === "string" ? body.marketCode : "";
+    if (!raw || !marketCode) {
       return Response.json({ error: "Missing inputs or marketCode" }, { status: 400 });
     }
+    // Validate every number (#4) — reject junk / out-of-range values instead of
+    // letting them flow into the math (and the AI prompt) as NaN.
+    const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : NaN);
+    const income = num(raw.income);
+    const savings = num(raw.savings);
+    const rent = num(raw.rent);
+    const age = num(raw.age);
+    if (!(income > 0) || !(savings >= 0) || !(rent >= 0) || !(age >= 18 && age <= 100)) {
+      return Response.json({ error: "Invalid inputs" }, { status: 400 });
+    }
+    // Cap the free-text goal (#3): limits prompt-injection surface and payload.
+    const goal = typeof raw.goal === "string" ? raw.goal.slice(0, 300) : "";
+    // Normalise to exactly the known fields — drop anything else the caller sent.
+    inputs = { income, savings, rent, age, goal };
   } catch {
     return Response.json({ error: "Invalid request body" }, { status: 400 });
   }
