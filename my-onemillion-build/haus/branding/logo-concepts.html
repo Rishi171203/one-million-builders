@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>haus — logo concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root { --ink:#0f172a; --muted:#64748b; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:'Inter',system-ui,sans-serif; color:var(--ink); background:#f8fafc; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 48px 24px 80px; }
+  h1 { font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:2.2rem; margin:0 0 6px; letter-spacing:-.5px; }
+  .sub { color:var(--muted); margin:0 0 40px; }
+  .concept { background:#fff; border:1px solid #e2e8f0; border-radius:24px; padding:32px; margin-bottom:28px; box-shadow:0 18px 40px rgba(2,6,23,.05); }
+  .concept h2 { font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:1.4rem; margin:0 0 4px; }
+  .concept p { color:var(--muted); margin:0 0 24px; max-width:620px; }
+  .row { display:flex; flex-wrap:wrap; gap:20px; align-items:stretch; }
+  .tile { border-radius:18px; padding:24px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; min-width:150px; flex:1; }
+  .light { background:#ffffff; border:1px solid #e2e8f0; }
+  .dark  { background:#0b1020; border:1px solid #1e293b; color:#fff; }
+  .label { font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:#94a3b8; }
+  .lockup { display:flex; align-items:center; gap:12px; }
+  .word { font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:1.7rem; letter-spacing:-.5px; }
+  .dot { color:#7c3aed; }
+  .navrow { display:flex; align-items:center; gap:10px; }
+  .navword { font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:1.05rem; }
+  .pick { font-size:.85rem; color:var(--muted); margin-top:8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>haus — logo concepts</h1>
+  <p class="sub">Three directions, all real SVG (crisp at any size, theme-adaptive). Pick a number — I'll wire it into the nav, login, footer + favicon.</p>
+
+  <!-- ===================== CONCEPT 1: HOME TILE ===================== -->
+  <div class="concept">
+    <h2>1 · Home Tile</h2>
+    <p>A refined evolution of today's logo: the brand-gradient rounded tile with a clean, custom-drawn house + doorway. Friendly, warm, unmistakably "home."</p>
+    <div class="row">
+      <div class="tile light">
+        <span class="label">Mark · large</span>
+        <svg width="84" height="84" viewBox="0 0 64 64"><defs><linearGradient id="a1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4F46E5"/><stop offset="1" stop-color="#9333EA"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#a1)"/><path d="M32 14 L50 30 V50 H14 V30 Z" fill="#fff"/><rect x="28" y="36" width="8" height="14" rx="1.5" fill="url(#a1)"/></svg>
+      </div>
+      <div class="tile light">
+        <span class="label">Nav · 34px</span>
+        <div class="navrow">
+          <svg width="34" height="34" viewBox="0 0 64 64"><defs><linearGradient id="a1b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4F46E5"/><stop offset="1" stop-color="#9333EA"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#a1b)"/><path d="M32 14 L50 30 V50 H14 V30 Z" fill="#fff"/><rect x="28" y="36" width="8" height="14" rx="1.5" fill="url(#a1b)"/></svg>
+          <span class="navword">haus<span class="dot">.</span></span>
+        </div>
+      </div>
+      <div class="tile dark">
+        <span class="label">On dark</span>
+        <div class="lockup">
+          <svg width="40" height="40" viewBox="0 0 64 64"><defs><linearGradient id="a1c" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#818CF8"/><stop offset="1" stop-color="#C084FC"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#a1c)"/><path d="M32 14 L50 30 V50 H14 V30 Z" fill="#0b1020"/><rect x="28" y="36" width="8" height="14" rx="1.5" fill="url(#a1c)"/></svg>
+          <span class="word" style="color:#fff">haus<span class="dot">.</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== CONCEPT 2: H-ROOF MONOGRAM ===================== -->
+  <div class="concept">
+    <h2>2 · h-Roof Monogram</h2>
+    <p>The letter <b>h</b> whose shoulder becomes a roof peak — letter and house fused into one ownable mark. The most distinctive option, and a superb favicon.</p>
+    <div class="row">
+      <div class="tile light">
+        <span class="label">Mark · large</span>
+        <svg width="84" height="84" viewBox="0 0 64 64"><defs><linearGradient id="b1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4F46E5"/><stop offset="1" stop-color="#9333EA"/></linearGradient></defs><path d="M18 12 V52 M18 33 L32 20 L46 33 V52" fill="none" stroke="url(#b1)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="tile light">
+        <span class="label">Nav · 34px (tile)</span>
+        <div class="navrow">
+          <svg width="34" height="34" viewBox="0 0 64 64"><defs><linearGradient id="b2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4F46E5"/><stop offset="1" stop-color="#9333EA"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#b2)"/><path d="M21 16 V48 M21 32 L32 22 L43 32 V48" fill="none" stroke="#fff" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="navword">haus<span class="dot">.</span></span>
+        </div>
+      </div>
+      <div class="tile dark">
+        <span class="label">On dark</span>
+        <div class="lockup">
+          <svg width="40" height="40" viewBox="0 0 64 64"><defs><linearGradient id="b3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#818CF8"/><stop offset="1" stop-color="#C084FC"/></linearGradient></defs><path d="M18 12 V52 M18 33 L32 20 L46 33 V52" fill="none" stroke="url(#b3)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="word" style="color:#fff">haus<span class="dot">.</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== CONCEPT 3: ASCEND ===================== -->
+  <div class="concept">
+    <h2>3 · Ascend</h2>
+    <p>Two stacked roof chevrons — "home + moving up." The most minimal, modern, fintech-premium direction. Abstract but still clearly a roof.</p>
+    <div class="row">
+      <div class="tile light">
+        <span class="label">Mark · large</span>
+        <svg width="84" height="84" viewBox="0 0 64 64"><defs><linearGradient id="c1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4F46E5"/><stop offset="1" stop-color="#9333EA"/></linearGradient></defs><path d="M12 34 L32 16 L52 34" fill="none" stroke="url(#c1)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 50 L32 39 L44 50" fill="none" stroke="url(#c1)" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/></svg>
+      </div>
+      <div class="tile light">
+        <span class="label">Nav · 34px (tile)</span>
+        <div class="navrow">
+          <svg width="34" height="34" viewBox="0 0 64 64"><defs><linearGradient id="c2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4F46E5"/><stop offset="1" stop-color="#9333EA"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#c2)"/><path d="M16 33 L32 19 L48 33" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 46 L32 37 L42 46" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/></svg>
+          <span class="navword">haus<span class="dot">.</span></span>
+        </div>
+      </div>
+      <div class="tile dark">
+        <span class="label">On dark</span>
+        <div class="lockup">
+          <svg width="40" height="40" viewBox="0 0 64 64"><defs><linearGradient id="c3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#818CF8"/><stop offset="1" stop-color="#C084FC"/></linearGradient></defs><path d="M12 34 L32 16 L52 34" fill="none" stroke="url(#c3)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 50 L32 39 L44 50" fill="none" stroke="url(#c3)" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/></svg>
+          <span class="word" style="color:#fff">haus<span class="dot">.</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="pick">Tell me <b>1</b>, <b>2</b>, or <b>3</b> (or mix — e.g. "2 but on a tile"). I'll then wire the mark across the app + generate the favicon.</p>
+</div>
+</body>
+</html>
