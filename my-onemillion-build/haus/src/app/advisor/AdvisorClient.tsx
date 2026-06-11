@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, animate } from "framer-motion";
+import { motion, AnimatePresence, animate, useReducedMotion } from "framer-motion";
 import {
   AppBar,
   Toolbar,
@@ -27,15 +27,20 @@ import BookmarkAddRoundedIcon from "@mui/icons-material/BookmarkAddRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
 import PictureAsPdfRoundedIcon from "@mui/icons-material/PictureAsPdfRounded";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import SavingsRoundedIcon from "@mui/icons-material/SavingsRounded";
 import { useRouter } from "next/navigation";
 import { computeResult, type Result } from "@/lib/haus";
 import { MARKETS, getMarket, DEFAULT_MARKET, fmtCompact, fmtFull, type Market } from "@/lib/markets";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import ThemeToggle from "@/components/ThemeToggle";
+import HausLogo from "@/components/HausLogo";
 import TypeOut from "@/components/TypeOut";
 import RentVsBuy from "@/components/RentVsBuy";
 import CompareScenarios from "@/components/CompareScenarios";
+import Image from "next/image";
+import { HERO_PHOTO, unsplashUrl } from "@/lib/photos";
 
 const MotionDiv = motion.div;
 
@@ -81,6 +86,7 @@ export default function AdvisorClient() {
   const advisorRef = useRef<HTMLDivElement>(null);
 
   const router = useRouter();
+  const reduce = useReducedMotion();
   const [supabase] = useState(() => createClient());
   const [user, setUser] = useState<User | null>(null);
   useEffect(() => {
@@ -225,7 +231,6 @@ export default function AdvisorClient() {
   }
 
   const ready = result?.status === "ready";
-  const accent = ready ? "#16A34A" : "#D97706";
   const cur = market.currencySymbol;
 
   return (
@@ -250,19 +255,7 @@ export default function AdvisorClient() {
             sx={{ alignItems: "center", cursor: "pointer" }}
             onClick={() => router.push("/")}
           >
-            <Box
-              sx={{
-                width: 34,
-                height: 34,
-                borderRadius: 2,
-                display: "grid",
-                placeItems: "center",
-                background: "linear-gradient(135deg,#4F46E5,#7C73FF)",
-                color: "#fff",
-              }}
-            >
-              <HomeRoundedIcon fontSize="small" />
-            </Box>
+            <HausLogo size={34} />
             <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: "-0.5px" }}>
               haus<Box component="span" sx={{ color: "primary.main" }}>.</Box>
             </Typography>
@@ -286,14 +279,54 @@ export default function AdvisorClient() {
         </Toolbar>
       </AppBar>
 
-      {/* Advisor */}
-      <Container maxWidth="md" sx={{ pt: { xs: 4, md: 6 }, pb: 12 }}>
+      {/* Advisor hero — the big question over a cinematic home photo */}
+      <Box className="haus-noprint" sx={{ position: "relative", overflow: "hidden" }}>
+        <MotionDiv
+          aria-hidden
+          animate={reduce ? {} : { scale: [1, 1.09] }}
+          transition={{ duration: 22, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
+          style={{ position: "absolute", inset: 0 }}
+        >
+          <Image src={unsplashUrl(HERO_PHOTO.id, 1600)} alt={HERO_PHOTO.alt} fill sizes="100vw" loading="eager" fetchPriority="high" style={{ objectFit: "cover" }} />
+        </MotionDiv>
+        <Box aria-hidden sx={{ position: "absolute", inset: 0, background: "linear-gradient(120deg, rgba(49,46,129,0.92), rgba(76,29,149,0.82) 55%, rgba(76,29,149,0.55))" }} />
+        <Container maxWidth="md" sx={{ position: "relative", pt: { xs: 6, md: 9 }, pb: { xs: 11, md: 15 }, textAlign: "center", color: "#fff" }}>
+          <MotionDiv initial={reduce ? false : { opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
+            <Typography variant="overline" sx={{ color: "rgba(255,255,255,0.85)", letterSpacing: 2 }}>haus · home-buying advisor</Typography>
+            <Typography variant="h2" sx={{ color: "#fff", fontWeight: 800, fontSize: { xs: "2.1rem", md: "3rem" }, lineHeight: 1.08, mb: 1.5 }}>
+              Should you buy a home yet?
+            </Typography>
+            <Typography sx={{ color: "rgba(255,255,255,0.9)", maxWidth: 560, mx: "auto", fontSize: "1.05rem" }}>
+              Tell us your numbers — get a clear, AI-personalized verdict in seconds, in your own currency.
+            </Typography>
+            <Stack direction="row" spacing={1} sx={{ justifyContent: "center", mt: 3, flexWrap: "wrap" }} useFlexGap>
+              {["100% free", "AI-personalized", "Your currency"].map((t) => (
+                <Chip key={t} icon={<CheckCircleRoundedIcon />} label={t} size="small" sx={{ color: "#fff", bgcolor: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.3)", "& .MuiChip-icon": { color: "#fff" } }} />
+              ))}
+            </Stack>
+          </MotionDiv>
+        </Container>
+      </Box>
+
+      {/* Advisor form + results — floated up over the hero */}
+      <Container maxWidth="md" sx={{ pb: 12, position: "relative", zIndex: 2, mt: { xs: -7, md: -10 } }}>
         <Box ref={advisorRef} className="haus-noprint" sx={{ scrollMarginTop: 80 }}>
           <MotionDiv initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
-            <Paper elevation={0} sx={{ p: { xs: 3, md: 4 }, borderRadius: 4, border: "1px solid", borderColor: "divider" }}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 3, md: 4 },
+                borderRadius: 5,
+                border: "1px solid",
+                borderColor: "divider",
+                bgcolor: (t) => (t.palette.mode === "light" ? "rgba(255,255,255,0.88)" : "rgba(17,24,39,0.85)"),
+                backdropFilter: "blur(16px)",
+                boxShadow: "0 30px 70px rgba(2,6,23,0.22)",
+              }}
+            >
               <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ justifyContent: "space-between", alignItems: { sm: "center" }, mb: 1 }}>
                 <Box>
-                  <Typography variant="h4">Should you buy a home yet?</Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 800 }}>Your details</Typography>
                   <Typography color="text.secondary" sx={{ mt: 0.5 }}>
                     Fill this in for a clear, jargon-free verdict.
                   </Typography>
@@ -365,7 +398,7 @@ export default function AdvisorClient() {
                   onClick={onSubmit}
                   disabled={loading}
                   endIcon={!loading && <ArrowForwardRoundedIcon />}
-                  sx={{ py: 1.5, fontSize: "1rem", boxShadow: "0 8px 20px rgba(79,70,229,0.25)" }}
+                  sx={{ py: 1.6, fontSize: "1.05rem", background: "linear-gradient(135deg,#4F46E5,#9333EA)", boxShadow: "0 12px 28px rgba(79,70,229,0.32)", "&:hover": { background: "linear-gradient(135deg,#4338CA,#7E22CE)" } }}
                 >
                   {loading ? (
                     <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
@@ -390,32 +423,71 @@ export default function AdvisorClient() {
             {result && (
               <MotionDiv variants={container} initial="hidden" animate="show" exit={{ opacity: 0 }}>
                 <MotionDiv variants={item}>
-                  <Paper elevation={0} sx={{ mt: 4, p: { xs: 3, md: 4 }, borderRadius: 4, border: "1px solid", borderColor: "divider", position: "relative", overflow: "hidden" }}>
-                    <Box sx={{ position: "absolute", top: 0, left: 0, right: 0, height: 6, background: accent }} />
-                    <Stack direction="row" spacing={1} sx={{ mt: 1, mb: 2, flexWrap: "wrap" }} useFlexGap>
-                      <Chip label={result.chipLabel} sx={{ fontWeight: 700, color: "#fff", bgcolor: accent }} />
-                      {aiPowered && (
-                        <Chip
-                          icon={<AutoAwesomeRoundedIcon />}
-                          label="Personalized by AI"
-                          sx={{ fontWeight: 700, bgcolor: "rgba(99,102,241,0.12)", color: "primary.main", "& .MuiChip-icon": { color: "primary.main" } }}
-                        />
-                      )}
-                    </Stack>
-                    <Typography variant="h4" sx={{ mb: 1.5 }}>
-                      {ready ? "You're in a strong position to buy." : "Renting is the smarter move — for now."}
-                    </Typography>
-                    <Typography color="text.secondary" sx={{ fontSize: "1.05rem", lineHeight: 1.6 }}>
-                      <TypeOut text={result.verdict} />
-                    </Typography>
+                  <Paper elevation={0} sx={{ mt: 4, borderRadius: 4, border: "1px solid", borderColor: "divider", position: "relative", overflow: "hidden", boxShadow: "0 22px 50px rgba(2,6,23,0.12)" }}>
+                    {/* Celebratory gradient header */}
+                    <Box
+                      sx={{
+                        position: "relative",
+                        overflow: "hidden",
+                        px: { xs: 3, md: 4 },
+                        py: { xs: 2.5, md: 3 },
+                        color: "#fff",
+                        background: ready
+                          ? "linear-gradient(135deg,#16A34A,#15803D)"
+                          : "linear-gradient(135deg,#D97706,#B45309)",
+                      }}
+                    >
+                      {/* soft drifting glow */}
+                      <MotionDiv
+                        aria-hidden
+                        animate={reduce ? {} : { x: [0, 30, 0], y: [0, -14, 0] }}
+                        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+                        style={{ position: "absolute", top: -60, right: -20, width: 220, height: 220, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,255,255,0.35), transparent 70%)", pointerEvents: "none" }}
+                      />
+                      <Stack direction="row" spacing={2} sx={{ alignItems: "center", position: "relative" }}>
+                        <MotionDiv
+                          initial={reduce ? false : { scale: 0, rotate: -25 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{ type: "spring", stiffness: 200, damping: 13, delay: 0.1 }}
+                        >
+                          <Box sx={{ width: 54, height: 54, borderRadius: "50%", flexShrink: 0, display: "grid", placeItems: "center", bgcolor: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.4)" }}>
+                            {ready ? <CheckCircleRoundedIcon sx={{ fontSize: 32 }} /> : <SavingsRoundedIcon sx={{ fontSize: 30 }} />}
+                          </Box>
+                        </MotionDiv>
+                        <Box>
+                          <Typography variant="overline" sx={{ color: "rgba(255,255,255,0.85)", letterSpacing: 1.5 }}>Your verdict</Typography>
+                          <Typography variant="h5" sx={{ color: "#fff", fontWeight: 800, lineHeight: 1.12 }}>
+                            {ready ? "You're in a strong position to buy." : "Renting is the smarter move — for now."}
+                          </Typography>
+                        </Box>
+                      </Stack>
+                      <Stack direction="row" spacing={1} sx={{ mt: 1.75, flexWrap: "wrap", position: "relative" }} useFlexGap>
+                        <Chip label={result.chipLabel} size="small" sx={{ fontWeight: 700, color: "#fff", bgcolor: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.4)" }} />
+                        {aiPowered && (
+                          <Chip
+                            icon={<AutoAwesomeRoundedIcon />}
+                            label="Personalized by AI"
+                            size="small"
+                            sx={{ fontWeight: 700, color: "#fff", bgcolor: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.4)", "& .MuiChip-icon": { color: "#fff" } }}
+                          />
+                        )}
+                      </Stack>
+                    </Box>
+                    {/* Verdict text */}
+                    <Box sx={{ px: { xs: 3, md: 4 }, py: { xs: 3, md: 3.5 } }}>
+                      <Typography color="text.secondary" sx={{ fontSize: "1.05rem", lineHeight: 1.65 }}>
+                        <TypeOut text={result.verdict} />
+                      </Typography>
+                    </Box>
                   </Paper>
                 </MotionDiv>
 
                 <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5, mt: 2.5 }}>
                   <MotionDiv variants={item}>
-                    <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider", height: "100%", transition: "transform 220ms ease, box-shadow 220ms ease", "&:hover": { transform: "translateY(-4px)", boxShadow: "0 14px 34px rgba(79,70,229,0.14)" } }}>
+                    <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider", height: "100%", bgcolor: "rgba(148,163,184,0.06)", backdropFilter: "blur(8px)", transition: "transform 220ms ease, box-shadow 220ms ease", "&:hover": { transform: "translateY(-4px)", boxShadow: "0 14px 34px rgba(79,70,229,0.14)" } }}>
+                      <Box sx={{ width: 40, height: 40, borderRadius: 2, display: "grid", placeItems: "center", color: "#fff", background: "linear-gradient(135deg,#4F46E5,#9333EA)", mb: 1.5 }}><HomeRoundedIcon fontSize="small" /></Box>
                       <Typography variant="overline" color="text.secondary">You can afford</Typography>
-                      <Typography variant="h3" sx={{ my: 0.5 }}>
+                      <Typography variant="h3" sx={{ my: 0.5, fontWeight: 800, background: "linear-gradient(120deg,#4F46E5,#9333EA)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                         <AnimatedNumber value={result.priceMin} format={(n) => fmtCompact(n, market)} />
                         {" – "}
                         <AnimatedNumber value={result.priceMax} format={(n) => fmtCompact(n, market)} />
@@ -426,10 +498,13 @@ export default function AdvisorClient() {
                     </Paper>
                   </MotionDiv>
                   <MotionDiv variants={item}>
-                    <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider", height: "100%", transition: "transform 220ms ease, box-shadow 220ms ease", "&:hover": { transform: "translateY(-4px)", boxShadow: "0 14px 34px rgba(79,70,229,0.14)" } }}>
+                    <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider", height: "100%", bgcolor: "rgba(148,163,184,0.06)", backdropFilter: "blur(8px)", transition: "transform 220ms ease, box-shadow 220ms ease", "&:hover": { transform: "translateY(-4px)", boxShadow: "0 14px 34px rgba(79,70,229,0.14)" } }}>
+                      <Box sx={{ width: 40, height: 40, borderRadius: 2, display: "grid", placeItems: "center", color: "#fff", background: "linear-gradient(135deg,#4F46E5,#9333EA)", mb: 1.5 }}><SavingsRoundedIcon fontSize="small" /></Box>
                       <Typography variant="overline" color="text.secondary">Estimated EMI</Typography>
-                      <Typography variant="h3" sx={{ my: 0.5 }}>
-                        <AnimatedNumber value={result.emi} format={(n) => fmtFull(n, market)} />
+                      <Typography variant="h3" sx={{ my: 0.5, fontWeight: 800 }}>
+                        <Box component="span" sx={{ background: "linear-gradient(120deg,#4F46E5,#9333EA)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                          <AnimatedNumber value={result.emi} format={(n) => fmtFull(n, market)} />
+                        </Box>
                         <Box component="span" sx={{ fontSize: "1rem", fontWeight: 600, color: "text.secondary" }}>/mo</Box>
                       </Typography>
                       <Typography variant="body2" color="text.secondary">

@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AppBar, Toolbar, Box, Typography, Button, Stack, Chip } from "@mui/material";
-import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import { createClient } from "@/lib/supabase/client";
 import ThemeToggle from "./ThemeToggle";
+import HausLogo from "./HausLogo";
 
 export default function DashboardHeader({ email, role }: { email: string; role: string }) {
   const [supabase] = useState(() => createClient());
@@ -34,8 +34,8 @@ export default function DashboardHeader({ email, role }: { email: string; role: 
     >
       <Toolbar sx={{ justifyContent: "space-between" }}>
         <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-          <Box component={Link} href="/" sx={{ width: 34, height: 34, borderRadius: 2, display: "grid", placeItems: "center", background: "linear-gradient(135deg,#4F46E5,#7C73FF)", color: "#fff" }}>
-            <HomeRoundedIcon fontSize="small" />
+          <Box component={Link} href="/" sx={{ display: "inline-flex", lineHeight: 0 }}>
+            <HausLogo size={34} />
           </Box>
           <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: "-0.5px" }}>
             haus<Box component="span" sx={{ color: "primary.main" }}>.</Box>
