@@ -23,7 +23,11 @@ jobs:
           node-version: "20"
           cache: "npm"
           cache-dependency-path: my-onemillion-build/haus/package-lock.json
-      - run: npm ci
+      # `npm install` (not `npm ci`): the lockfile is generated on Windows, so it
+      # lacks Linux-only optional binaries (esbuild/rollup) that Vitest needs on
+      # the Ubuntu runner. `npm install` resolves the right binaries per-OS.
+      - name: Install deps
+        run: npm install --no-audit --no-fund
       - name: Unit tests (Vitest)
         run: npm test
       - name: Lint (non-blocking)
