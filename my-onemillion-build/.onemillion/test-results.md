@@ -40,19 +40,35 @@ cd my-onemillion-build/haus && npm test
   capped at 300 chars (prompt-injection surface reduced).
 - Secrets git-ignored + server-only; no XSS sinks; `?next=` open-redirect-safe.
 
-## Limitations (planned, not yet automated)
+## E2E (Playwright, Chromium) — public flows
 
-- **E2E (Playwright)** — register → login → run advisor → save → dashboard, at 375px + 1280px.
-  Not yet written; core flows verified manually this session.
-- **API contract tests** — automated 200/400/401/429 cases for `/api/advice` (only manual curl
-  so far).
-- **CI pipeline** — `.github/workflows/test.yml` to run `npm test` (+ build/lint) on push/PR.
-- **Component/RTL tests** — UI components are currently verified via tsc + manual review.
+`npm run test:e2e` → **4 passed** (`tests/e2e/public.spec.ts`). Real browser, no DB writes:
+- homepage loads with the hero + primary CTA
+- Register → routes to the login page
+- **the advisor is gated** — a logged-out visitor is redirected to `/login`
+- login page shows the Log in / Register tabs + email field
 
-These are the recommended next testing steps before/around deploy; none block the current
-core-logic guarantee.
+Config note: runs serially (`workers: 1`) because the dev server compiles routes on-demand;
+parallel runs starved hydration and made the click test flaky.
+
+## CI (GitHub Actions)
+
+`.github/workflows/haus-tests.yml` — on every push to `main` and every PR, runs `npm ci` +
+`npm test` (the 23 unit tests) on a fresh Ubuntu runner, with lint as a non-blocking step.
+A change that breaks the core math now fails CI automatically.
+
+## Limitations (still deferred)
+
+- **Authenticated E2E** (register → run advisor → save → dashboard) — needs a **separate test
+  Supabase project** so test users don't land in the live DB. Public flows covered above;
+  authed flows verified manually this session.
+- **E2E in CI** — needs the app + browser + Supabase keys configured as GitHub secrets; unit
+  tests run in CI today, E2E runs locally.
+- **API contract tests** (automated 200/400/401/429 for `/api/advice`) — manual curl so far.
+- **Component/RTL tests** — UI components verified via tsc + manual review.
 
 ## Verdict
 
-**PASS** for the MVP core-logic suite (Tier 5). The product's math is now regression-protected.
-E2E + CI to follow as the final pre-ship testing layer.
+**PASS** — 23 unit tests + 4 E2E (public) green; CI runs the unit suite automatically. The
+product's core math is regression-protected and the public surface + login wall are covered in
+a real browser. Authenticated E2E + E2E-in-CI to follow once a test Supabase project exists.

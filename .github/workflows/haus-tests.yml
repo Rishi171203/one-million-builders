@@ -1,0 +1,31 @@
+name: haus tests
+
+# Runs haus's automated unit tests on every push to main and on PRs, so a change
+# that breaks the core math is caught automatically (red ❌ on the commit).
+# E2E (Playwright) is run locally for now — see .onemillion/test-results.md.
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: my-onemillion-build/haus
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: my-onemillion-build/haus/package-lock.json
+      - run: npm ci
+      - name: Unit tests (Vitest)
+        run: npm test
+      - name: Lint (non-blocking)
+        run: npm run lint
+        continue-on-error: true
