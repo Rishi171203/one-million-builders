@@ -5,10 +5,16 @@ Sources: refined-prd.md, design-spec.md, design-system.md, screens/, seed-data.j
 Scope note: Updated from Bangalore-only MVP → **global, multi-currency** product with
 accounts and saved data, per founder + CEO direction (build fully, then launch).
 
+> **Reconciliation (Day 14, 2026-06-11):** the app is now **account-first** (the advisor lives
+> behind login — see §1/§6), the **AI advisor is built** (Gemini hybrid — see §11), and
+> `/api/advice` is auth-gated + rate-limited (§7). Sections below are corrected where marked
+> "(updated Day 14)". The module map (§14) is illustrative and has since grown (advisor/owner/
+> admin/profile routes, `api/advice`, auth callback, `proxy.ts`, brand/UI components, tests).
+
 ## 1. Product Type
-Balanced-responsive **web app** (premium, animated). Public advisor tool anyone can use
-without login; optional accounts to save and revisit assessments. Not mobile-native, not
-an agent (AI advisor is a later phase).
+Balanced-responsive **web app** (premium, animated). **Account-first (updated Day 14):** a
+public marketing homepage at `/`, with the advisor + all features behind login at `/advisor`.
+The AI advisor (Gemini) is now built (see §11). Not mobile-native, not a conversational agent.
 
 ## 2. Stack
 - **Frontend:** Next.js (App Router, TypeScript, React) + MUI + Framer Motion.
@@ -43,8 +49,9 @@ new account features live behind login.
 
 ## 6. Auth Model
 - **Supabase Auth.** Methods: **email/password** + **Google OAuth** (one-click).
-- Public (no login): landing page, the advisor tool, viewing a result.
-- Login required: saving an assessment, the dashboard/history, profile settings.
+- Public (no login) **(updated Day 14):** the marketing homepage at `/`, and the login/register page.
+- Login required **(updated Day 14):** the advisor at `/advisor`, viewing a result, saving,
+  the dashboards (buyer/owner/admin), and profile. After login users land on their role's home.
 - Sessions handled by Supabase SSR helpers; auth state available in server and client.
 
 ## 7. Security Model
@@ -52,7 +59,9 @@ new account features live behind login.
   where `user_id = auth.uid()`. Enforced in the database, not just the UI.
 - Secrets in environment variables; the Supabase **service-role key never reaches the browser**.
 - Input validation on both client and server actions.
-- No AI endpoints yet → no AI rate/cost limits needed this phase.
+- AI endpoint `/api/advice` **(updated Day 14):** server-only key, **requires a logged-in
+  session**, **per-user rate limit**, and full input validation (+ a cap on the free-text goal).
+- Admin role **cannot be self-assigned** — a DB trigger blocks role escalation (Day 9 fix).
 - "Guidance, not financial advice" disclaimer shown with every result (trust + liability).
 
 ## 8. Data Model (entities & ownership)
@@ -87,8 +96,11 @@ Number/currency formatting adapts per locale (e.g. Indian lakh/crore vs. Western
 - Auth flows via Supabase client (signUp, signInWithPassword, signInWithOAuth, signOut).
 
 ## 11. AI Boundary
-**Deferred** to a later phase (course Days 11–12). When added: AI calls happen only in
-server routes (never expose keys client-side), with rate/cost limits. Not in this plan.
+**Built (updated Day 14).** Google Gemini (free tier) writes the verdict / next-steps / jargon in
+a **hybrid** design — our code does ALL the math and passes the numbers in, so the AI only writes
+the language and can't invent figures. It lives only in the server route `/api/advice` (key never
+client-side), with **graceful fallback** to the deterministic text, a **login requirement**, and a
+**per-user rate limit**. Model overridable via `GEMINI_MODEL` (default `gemini-2.5-flash`).
 
 ## 12. Deployment Topology
 Browser ⇄ **Vercel** (Next.js app, global edge) ⇄ **Supabase** (Postgres + Auth, cloud).
@@ -98,6 +110,7 @@ Git push to `main` → Vercel auto-builds & deploys. Preview deploys per branch.
 - `NEXT_PUBLIC_SUPABASE_URL` — Supabase project URL (public).
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` — public anon key (safe for browser, RLS protects data).
 - `SUPABASE_SERVICE_ROLE_KEY` — server-only (never `NEXT_PUBLIC_`); used only in trusted server code if needed.
+- `GEMINI_API_KEY` — **server-only** (used only by `/api/advice`); never `NEXT_PUBLIC_`. Optional `GEMINI_MODEL` override.
 - Google OAuth configured in the Supabase dashboard (no extra app env var needed).
 
 ## 14. Module Map

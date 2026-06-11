@@ -47,6 +47,43 @@ is and stays the heart of the product.
 deterministic code (hence they repeat). Per the Day 3 spec (and Assumptions below), the **AI layer
 that writes personalised language arrives in course Days 11–12**; math stays as reliable code.
 
+## Scope Update (Day 14, 2026-06-11) — reconciled with the shipped product
+
+The product evolved further during build/review. Recording the real, shipped state so the PRD
+is honest. **Where this conflicts with the Day 3 spec below, this update wins** (the Day 3 body
+is kept as the original historical spec).
+
+**1. Access model changed → account-first (login wall).**
+`/` is now a **public marketing homepage** (what haus does + Login/Register). The **advisor and
+all features live behind login** at `/advisor`. This **supersedes** the Day 3 "single-page,
+anonymous, no login" decision and the "No login, no stored data" line in the Definition of Done.
+*Why:* it gives accounts a clear purpose, makes every user a registered user (better for
+save/history and any future lead-gen/partnerships), and matches the founder's direction.
+*Trade-off accepted:* visitors must sign up before trying the advisor.
+
+**2. AI layer is BUILT (supersedes "deferred").**
+The verdict, next steps, and jargon are now written by **Google Gemini** (free tier) in a
+**hybrid** design: our code does ALL the math; the AI only writes the language, with the numbers
+passed in so it can't invent figures. Server-only key, **graceful fallback** to the deterministic
+text if the AI is unavailable, and (post-review) the endpoint **requires login + is rate-limited**.
+
+**3. Buyer features shipped beyond the Day 3 core (all IN SCOPE):**
+rent-vs-buy-over-time (with a chart + what-if sliders), compare scenarios (buy now vs. wait & save),
+edit & re-run a saved verdict, share link + save-as-PDF, a profile page, and SEO metadata.
+
+**4. Design + brand.** Premium, motion-rich redesign across every screen (cinematic heroes,
+imagery, dark mode) and a real **brand logo** (the "h-roof" mark) + favicon.
+
+**5. Security (Day 9 review).** RLS on `profiles` + `assessments`; **admin role can no longer be
+self-assigned** (signup clamps to buyer/owner + a DB trigger blocks role escalation); `/api/advice`
+auth-gated + rate-limited; full input validation + a cap on the free-text goal.
+
+**6. Testing (Day 10).** Vitest unit tests (23) over the core math + Playwright E2E (public flows)
++ a GitHub Actions CI workflow.
+
+**7. Currency/markets.** Global multi-currency (India, USA, Germany, UK, UAE). The Day 3
+"INR only / Bangalore only" lines are historical and were superseded by the Day 5 update.
+
 ## Day 3 Locked Spec
 
 ### MVP Summary
